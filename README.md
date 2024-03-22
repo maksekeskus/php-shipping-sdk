@@ -32,9 +32,9 @@ $mcs = new MakeCommerceClient(
 To get your API keys, please visit merchant.test.maksekeskus.ee or merchant.maksekeskus.ee
 
 ``
-live
+environment
 ``
-Set true when using LIVE store credentials, sends requests to live endpoint
+Set Environment::TEST or ::LIVE and store credentials what belong to current environment
 
 ``
 shopId
