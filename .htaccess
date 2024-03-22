@@ -1,0 +1,12 @@
+Options All -Indexes
+
+<Files .htaccess>
+order allow,deny
+deny from all
+</Files>
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule ^$ sample/ [L]
+RewriteRule (.*) sample/$1 [L]
+</IfModule>

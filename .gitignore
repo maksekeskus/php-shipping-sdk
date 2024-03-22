@@ -1,0 +1,11 @@
+# IDE
+.idea/
+.vscode/
+nbproject/
+.DS_STORE
+#CACHE
+.php-cs-fixer.cache
+# Vendor
+/vendor
+composer.phar
+composer.lock

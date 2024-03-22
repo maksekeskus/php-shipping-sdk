@@ -1,0 +1,45 @@
+{
+  "name": "makecommerce/php-shipping-sdk",
+  "description": "MakeCommerce PHP shipping SDK",
+  "keywords": [
+    "rest",
+    "psr7",
+    "makecommerce"
+  ],
+  "homepage": "https://makecommerce.net",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "MakeCommerce",
+      "email": "developer@makecommerce.net",
+      "homepage": "https://makecommerce.net/"
+    }
+  ],
+  "require": {
+    "php": ">=7.4",
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^7.7"
+  },
+  "require-dev": {
+    "phpmd/phpmd": "^2.15",
+    "phpstan/phpstan": "^1.10",
+    "squizlabs/php_codesniffer": "^3.9",
+    "symfony/var-dumper": "5.4.36"
+  },
+  "config": {
+    "allow-plugins": {
+      "phpstan/extension-installer": true
+    },
+    "process-timeout": 0,
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "MakeCommerceShipping\\SDK\\": "src/MakeCommerce"
+    }
+  },
+  "scripts": {
+    "start": "php -S localhost:8080 -t sample",
+    "test": "phpunit"
+  }
+}
