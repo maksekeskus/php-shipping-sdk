@@ -62,12 +62,9 @@ $sender = [
     "name" => "Maksekeskus AS",
     "phone" => "+37258875115",
     "email" => "modules@maksekeskus.ee",
-    "companyCode" => "12268475",
-    "postalCode" => "10145",
-    "country" => "EE",
+    "zip" => "10145",
     "city" => "Tallinn",
-    "street" => "Liivalaia",
-    "building" => "45"
+    "address" => "Liivalaia 45"
 ];
 
 echo "<br><br>";
