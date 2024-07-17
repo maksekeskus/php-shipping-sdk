@@ -69,6 +69,16 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
+     * @return array
+     * @throws Exception
+     * @throws GuzzleException|MCException
+     */
+    public function getCouriers(): array
+    {
+        return $this->makeApiRequest(self::GET, self::COURIER_RESOURCES['ListCouriers'])->body;
+    }
+
+    /**
      * @param string $carrier
      * @return object
      * @throws GuzzleException|MCException
@@ -122,7 +132,7 @@ class MakeCommerceClient implements HttpClientInterface
     public function listCarrierDestinations(string $carrier, string $country)
     {
         $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['ListCarrierDestinations']);
-        $endPoint = str_replace('{country}', $country, $endPoint);
+        $endPoint = str_replace('{country}', mb_strtolower($country), $endPoint);
 
         return $this->makeApiRequest(self::GET, $endPoint)->body;
     }
