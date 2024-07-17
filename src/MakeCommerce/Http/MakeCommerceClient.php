@@ -73,9 +73,19 @@ class MakeCommerceClient implements HttpClientInterface
      * @return object
      * @throws GuzzleException|MCException
      */
-    public function getCarrier(string $carrier)
+    public function getCarrier(string $carrier, string $type = self::TYPE_PARCEL)
     {
-        $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['Carrier']);
+        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
+            throw new MCException(
+                'Carrier type is invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
+                400
+            );
+        }
+        if ($type === self::TYPE_PARCEL) {
+            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['Carrier']);
+        } else {
+            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['Carrier']);
+        }
 
         return $this->makeApiRequest(self::GET, $endPoint)->body;
     }
@@ -85,9 +95,20 @@ class MakeCommerceClient implements HttpClientInterface
      * @return array
      * @throws GuzzleException|MCException
      */
-    public function listDestinations(string $carrier)
+    public function listDestinations(string $carrier, string $type = self::TYPE_PARCEL)
     {
-        $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['ListDestinations']);
+        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
+            throw new MCException(
+                'Carrier type is invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
+                400
+            );
+        }
+
+        if ($type === self::TYPE_PARCEL) {
+            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['ListDestinations']);
+        } else {
+            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['ListDestinations']);
+        }
 
         return $this->makeApiRequest(self::GET, $endPoint)->body;
     }
@@ -111,16 +132,45 @@ class MakeCommerceClient implements HttpClientInterface
      * @param array $data
      * @param array $sender
      * @param string $originCountry
+     * @param array $credentials
      * @return array|mixed
      * @throws MCException|GuzzleException
      */
-    public function createShipment(string $carrier, array $data, array $sender, string $originCountry)
-    {
-        $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['CreateShipment']);
+    public function createShipment(
+        string $carrier,
+        array $data,
+        array $sender,
+        string $originCountry,
+        array $credentials = [],
+        string $type = self::TYPE_PARCEL
+    ) {
+        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
+            throw new MCException(
+                'Create shipment type invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
+                400
+            );
+        }
+        if ($type === self::TYPE_COURIER && empty($credentials)) {
+            throw new MCException(
+                'Credentials must be included!',
+                400
+            );
+        }
+
+        if ($type === self::TYPE_PARCEL) {
+            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['CreateShipment']);
+        } else {
+            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['CreateShipment']);
+        }
+
         $headers = [
             'MakeCommerce-Shipping-Sender' => base64_encode(json_encode($sender)),
             'MakeCommerce-Shipping-OriginCountry' => $originCountry
         ];
+
+        if ($credentials) {
+            $headers['MakeCommerce-Carrier-Credentials'] = base64_encode(json_encode($credentials));
+        }
 
         return $this->makeApiRequest(self::POST, $endPoint, $data, $headers)->body;
     }
@@ -131,12 +181,38 @@ class MakeCommerceClient implements HttpClientInterface
      * @return string
      * @throws MCException|GuzzleException
      */
-    public function getLabel(string $carrier, string $shipmentId)
-    {
-        $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['GetShipmentLabel']);
+    public function getLabel(
+        string $carrier,
+        string $shipmentId,
+        array $credentials = [],
+        string $type = self::TYPE_PARCEL
+    ) {
+        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
+            throw new MCException(
+                'Shipment type is invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
+                400
+            );
+        }
+        if ($type === self::TYPE_COURIER && empty($credentials)) {
+            throw new MCException(
+                'Credentials must be included!',
+                400
+            );
+        }
+
+        $additionalHeaders = [];
+        if ($credentials) {
+            $additionalHeaders['MakeCommerce-Carrier-Credentials'] = base64_encode(json_encode($credentials));
+        }
+
+        if ($type === self::TYPE_PARCEL) {
+            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['GetShipmentLabel']);
+        } else {
+            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['GetShipmentLabel']);
+        }
         $endPoint = str_replace('{shipment}', $shipmentId, $endPoint);
 
-        return $this->makeApiRequest(self::GET, $endPoint)->rawBody;
+        return $this->makeApiRequest(self::GET, $endPoint, [], $additionalHeaders)->rawBody;
     }
 
     /**

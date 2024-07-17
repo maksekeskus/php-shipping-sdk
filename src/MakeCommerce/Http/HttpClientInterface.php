@@ -17,4 +17,15 @@ interface HttpClientInterface
         'ListDestinations' => '/parcelmachines/{carrier}/destinations',
         'ListParcelmachines' => '/parcelmachines'
     ];
+
+    public const COURIER_RESOURCES = [
+        'Carrier' => '/couriers/{carrier}',
+        'CreateShipment' => '/couriers/{carrier}/shipments',
+        'GetShipmentLabel' => '/couriers/{carrier}/shipments/{shipment}/label',
+        'ListDestinations' => '/couriers/{carrier}/destinations'
+    ];
+
+    public const TYPE_PARCEL = 'parcel';
+
+    public const TYPE_COURIER = 'courier';
 }
