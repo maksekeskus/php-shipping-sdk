@@ -122,7 +122,7 @@ class MakeCommerceClient implements HttpClientInterface
     public function listCarrierDestinations(string $carrier, string $country)
     {
         $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['ListCarrierDestinations']);
-        $endPoint = str_replace('{country}', $country, $endPoint);
+        $endPoint = str_replace('{country}', mb_strtolower($country), $endPoint);
 
         return $this->makeApiRequest(self::GET, $endPoint)->body;
     }
