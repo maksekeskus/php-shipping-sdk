@@ -22,7 +22,8 @@ interface HttpClientInterface
         'Carrier' => '/couriers/{carrier}',
         'CreateShipment' => '/couriers/{carrier}/shipments',
         'GetShipmentLabel' => '/couriers/{carrier}/shipments/{shipment}/label',
-        'ListDestinations' => '/couriers/{carrier}/destinations'
+        'ListDestinations' => '/couriers/{carrier}/destinations',
+        'ListCouriers' => '/couriers'
     ];
 
     public const TYPE_PARCEL = 'parcel';

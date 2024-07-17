@@ -69,6 +69,16 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
+     * @return array
+     * @throws Exception
+     * @throws GuzzleException|MCException
+     */
+    public function getCouriers(): array
+    {
+        return $this->makeApiRequest(self::GET, self::COURIER_RESOURCES['ListCouriers'])->body;
+    }
+
+    /**
      * @param string $carrier
      * @return object
      * @throws GuzzleException|MCException
