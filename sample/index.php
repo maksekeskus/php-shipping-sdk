@@ -24,7 +24,7 @@ echo "<html><head></head><body>";
 foreach ($mcs->getParcelmachines() as $carrier) {
     echo "<img src='$carrier->logo' style='height: 24px;' title='$carrier->title' alt='$carrier->title' />";
     foreach ($carrier->destinations as $destination) {
-        echo "<div>$destination->id: &euro;" . number_format((float)$destination->default_price / 100, 2) . "</div>";
+        echo "<div>$destination->id: &euro;" . number_format((float)$destination->defaultPrice / 100, 2) . "</div>";
 
         $machines = $mcs->listCarrierDestinations($carrier->id, $destination->id);
         echo "<select>";
