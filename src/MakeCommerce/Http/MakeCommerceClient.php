@@ -85,12 +85,8 @@ class MakeCommerceClient implements HttpClientInterface
      */
     public function getCarrier(string $carrier, string $type = self::TYPE_PARCEL)
     {
-        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
-            throw new MCException(
-                'Carrier type is invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
-                400
-            );
-        }
+        $this->validateShipmentType($type);
+
         if ($type === self::TYPE_PARCEL) {
             $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['Carrier']);
         } else {
@@ -107,12 +103,7 @@ class MakeCommerceClient implements HttpClientInterface
      */
     public function listDestinations(string $carrier, string $type = self::TYPE_PARCEL)
     {
-        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
-            throw new MCException(
-                'Carrier type is invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
-                400
-            );
-        }
+        $this->validateShipmentType($type);
 
         if ($type === self::TYPE_PARCEL) {
             $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['ListDestinations']);
@@ -154,12 +145,8 @@ class MakeCommerceClient implements HttpClientInterface
         array $credentials = [],
         string $type = self::TYPE_PARCEL
     ) {
-        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
-            throw new MCException(
-                'Create shipment type invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
-                400
-            );
-        }
+        $this->validateShipmentType($type);
+
         if ($type === self::TYPE_COURIER && empty($credentials)) {
             throw new MCException(
                 'Credentials must be included!',
@@ -197,12 +184,8 @@ class MakeCommerceClient implements HttpClientInterface
         array $credentials = [],
         string $type = self::TYPE_PARCEL
     ) {
-        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
-            throw new MCException(
-                'Shipment type is invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
-                400
-            );
-        }
+        $this->validateShipmentType($type);
+
         if ($type === self::TYPE_COURIER && empty($credentials)) {
             throw new MCException(
                 'Credentials must be included!',
@@ -268,5 +251,19 @@ class MakeCommerceClient implements HttpClientInterface
         }
 
         return new MCResponse($response);
+    }
+
+    /**
+     * @param string $type
+     * @throws MCException
+     */
+    private function validateShipmentType(string $type): void
+    {
+        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
+            throw new MCException(
+                'Shipment type is invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
+                400
+            );
+        }
     }
 }
