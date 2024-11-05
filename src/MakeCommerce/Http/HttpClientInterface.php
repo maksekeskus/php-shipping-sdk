@@ -9,6 +9,10 @@ interface HttpClientInterface
     public const DEV_BASE_URI = 'https://shipping.dev.makecommerce.net';
     public const TEST_BASE_URI = 'https://shipping.test.makecommerce.net';
     public const LIVE_BASE_URI = 'https://shipping.makecommerce.net';
+    public const DEV_MANAGER_URI = 'https://shipping-manager.dev.makecommerce.net';
+    public const TEST_MANAGER_URI = 'https://shipping-manager.test.makecommerce.net';
+    public const LIVE_MANAGER_URI = 'https://shipping-manager.makecommerce.net';
+
     public const PARCEL_MACHINE_RESOURCES = [
         'Carrier' => '/parcelmachines/{carrier}',
         'CreateShipment' => '/parcelmachines/{carrier}/shipments',
@@ -24,6 +28,11 @@ interface HttpClientInterface
         'GetShipmentLabel' => '/couriers/{carrier}/shipments/{shipment}/label',
         'ListDestinations' => '/couriers/{carrier}/destinations',
         'ListCouriers' => '/couriers'
+    ];
+
+    public const MANAGER_RESOURCES = [
+        'VisualizeConfigPage' => '/public/ui/?',
+        'Connect' => '/public/ui/connect'
     ];
 
     public const TYPE_PARCEL = 'parcel';

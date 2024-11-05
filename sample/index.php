@@ -19,6 +19,8 @@ $mcs = new MakeCommerceClient(
     $metaData
 );
 
+$instanceId = '6729eeb1d5cf39.89737764';
+
 echo "<html><head></head><body>";
 
 foreach ($mcs->getParcelmachines() as $carrier) {
@@ -69,9 +71,20 @@ $sender = [
 
 echo "<br><br>";
 
-foreach ($mcs->createShipment('venipak', $shipments, $sender, 'EE') as $shipment) {
-    echo $shipment->shipmentId . " <a target='_blank' href='" . $shipment->trackingLink . "'>track</a> 
- <a target='_blank' href='/label.php?shipmentId=" . $shipment->shipmentId . "'>label</a><br>";
+try {
+    $mcs->connectShop($instanceId);
+    $mcs->visualizeConfigPage($instanceId);
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
+
+try {
+    foreach ($mcs->createShipment('venipak', $shipments, $instanceId) as $shipment) {
+        echo $shipment->shipmentId . " <a target='_blank' href='" . $shipment->trackingLink . "'>track</a> 
+     <a target='_blank' href='/label.php?shipmentId=" . $shipment->shipmentId . "'>label</a><br>";
+    }
+} catch (Exception $e) {
+    echo $e->getMessage();
 }
 
 echo "</body></html>";

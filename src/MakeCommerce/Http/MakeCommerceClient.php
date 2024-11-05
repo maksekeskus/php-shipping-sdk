@@ -18,6 +18,11 @@ class MakeCommerceClient implements HttpClientInterface
     private string $apiUrl;
 
     /**
+     * @var string
+     */
+    private string $managerUrl;
+
+    /**
      * @var string Shop ID
      */
     private string $shopId;
@@ -43,12 +48,15 @@ class MakeCommerceClient implements HttpClientInterface
         switch ($environment) {
             case Environment::DEV:
                 $this->apiUrl = self::DEV_BASE_URI;
+                $this->managerUrl = self::DEV_MANAGER_URI;
                 break;
             case Environment::TEST:
                 $this->apiUrl = self::TEST_BASE_URI;
+                $this->managerUrl = self::TEST_MANAGER_URI;
                 break;
             case Environment::LIVE:
                 $this->apiUrl = self::LIVE_BASE_URI;
+                $this->managerUrl = self::LIVE_MANAGER_URI;
                 break;
         }
 
@@ -131,28 +139,19 @@ class MakeCommerceClient implements HttpClientInterface
     /**
      * @param string $carrier
      * @param array $data
-     * @param array $sender
-     * @param string $originCountry
-     * @param array $credentials
+     * @param string $instanceId
+     * @param string $type
      * @return array|mixed
-     * @throws MCException|GuzzleException
+     * @throws GuzzleException
+     * @throws MCException
      */
     public function createShipment(
         string $carrier,
         array $data,
-        array $sender,
-        string $originCountry,
-        array $credentials = [],
+        string $instanceId,
         string $type = self::TYPE_PARCEL
     ) {
         $this->validateShipmentType($type);
-
-        if ($type === self::TYPE_COURIER && empty($credentials)) {
-            throw new MCException(
-                'Credentials must be included!',
-                400
-            );
-        }
 
         if ($type === self::TYPE_PARCEL) {
             $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['CreateShipment']);
@@ -161,13 +160,8 @@ class MakeCommerceClient implements HttpClientInterface
         }
 
         $headers = [
-            'MakeCommerce-Shipping-Sender' => base64_encode(json_encode($sender)),
-            'MakeCommerce-Shipping-OriginCountry' => $originCountry
+            'MakeCommerce-Shop-Instance' => $instanceId,
         ];
-
-        if ($credentials) {
-            $headers['MakeCommerce-Carrier-Credentials'] = base64_encode(json_encode($credentials));
-        }
 
         return $this->makeApiRequest(self::POST, $endPoint, $data, $headers)->body;
     }
@@ -175,27 +169,23 @@ class MakeCommerceClient implements HttpClientInterface
     /**
      * @param string $carrier
      * @param string $shipmentId
+     * @param string $type
      * @return string
-     * @throws MCException|GuzzleException
+     * @throws GuzzleException
+     * @throws MCException
      */
     public function getLabel(
         string $carrier,
         string $shipmentId,
-        array $credentials = [],
         string $type = self::TYPE_PARCEL
-    ) {
+    ): string {
         $this->validateShipmentType($type);
 
-        if ($type === self::TYPE_COURIER && empty($credentials)) {
+        if ($type === self::TYPE_COURIER) {
             throw new MCException(
                 'Credentials must be included!',
                 400
             );
-        }
-
-        $additionalHeaders = [];
-        if ($credentials) {
-            $additionalHeaders['MakeCommerce-Carrier-Credentials'] = base64_encode(json_encode($credentials));
         }
 
         if ($type === self::TYPE_PARCEL) {
@@ -205,7 +195,58 @@ class MakeCommerceClient implements HttpClientInterface
         }
         $endPoint = str_replace('{shipment}', $shipmentId, $endPoint);
 
-        return $this->makeApiRequest(self::GET, $endPoint, [], $additionalHeaders)->rawBody;
+        return $this->makeApiRequest(self::GET, $endPoint, [])->rawBody;
+    }
+
+    /**
+     * @param string $instanceId
+     * @param string $width
+     * @param string $height
+     * @return void
+     */
+    public function visualizeConfigPage(
+        string $instanceId,
+        string $width = '100%',
+        string $height = '1000px'
+    ) {
+        $payload = json_encode([
+            'shopId' => $this->shopId,
+            'instanceId' => $instanceId
+        ]);
+
+        $token = hash_hmac('sha256', $payload, $this->secretKey);
+
+        $queryString = http_build_query(
+            [
+                "token" => $token,
+                "shopId" => $this->shopId,
+                "instanceId" => $instanceId
+            ]
+        );
+
+        $iframeUrl = $this->managerUrl . self::MANAGER_RESOURCES['VisualizeConfigPage'] . $queryString;
+
+        echo '<iframe src="' . $iframeUrl . '" height="' . $height . '" width="' . $width . '"></iframe>';
+    }
+
+    /**
+     * @param string $instanceId
+     * @return MCResponse
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function connectShop(
+        string $instanceId
+    ) {
+        $body = [
+            'shopId' => $this->shopId,
+            'secretKey' => $this->secretKey,
+            'instanceId' => $instanceId
+        ];
+
+        $endpoint = self::MANAGER_RESOURCES['Connect'];
+
+        return $this->makeApiRequest(self::POST, $endpoint, $body, [], true);
     }
 
     /**
@@ -213,6 +254,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @param string $endpoint
      * @param array $body
      * @param array $additionalHeaders
+     * @param bool $managerRequest
      * @return MCResponse
      * @throws GuzzleException
      * @throws MCException
@@ -221,14 +263,18 @@ class MakeCommerceClient implements HttpClientInterface
         string $method,
         string $endpoint,
         array $body = [],
-        array $additionalHeaders = []
+        array $additionalHeaders = [],
+        bool $managerRequest = false
     ): MCResponse {
         $uri = $this->apiUrl . $endpoint;
+        if ($managerRequest) {
+            $uri = $this->managerUrl . $endpoint;
+        }
 
         $headers = [
             'Accept' => 'application/json',
             'Content-type' => 'application/json',
-            'MakeCommerce-Shipping-ShopId' => $this->shopId,
+            'MakeCommerce-Shop' => $this->shopId,
             'MakeCommerce-Shipping-AppInfo' => $this->appInfo
         ];
 
