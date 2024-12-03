@@ -30,6 +30,10 @@ interface HttpClientInterface
         'ListCouriers' => '/couriers'
     ];
 
+    public const CARRIER_RESOURCES = [
+      'Authenticate' => '/authenticate/{carrier}'
+    ];
+
     public const MANAGER_RESOURCES = [
         'VisualizeConfigPage' => '/public/ui/?',
         'Connect' => '/public/ui/connect'
