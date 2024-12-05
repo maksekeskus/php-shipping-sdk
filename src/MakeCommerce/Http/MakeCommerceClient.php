@@ -48,15 +48,15 @@ class MakeCommerceClient implements HttpClientInterface
         switch ($environment) {
             case Environment::DEV:
                 $this->setApiUrl(self::DEV_BASE_URI);
-                $this->managerUrl = self::DEV_MANAGER_URI;
+                $this->setManagerUrl(self::DEV_MANAGER_URI);
                 break;
             case Environment::TEST:
                 $this->setApiUrl(self::TEST_BASE_URI);
-                $this->managerUrl = self::TEST_MANAGER_URI;
+                $this->setManagerUrl(self::TEST_MANAGER_URI);
                 break;
             case Environment::LIVE:
                 $this->setApiUrl(self::LIVE_BASE_URI);
-                $this->managerUrl = self::LIVE_MANAGER_URI;
+                $this->setManagerUrl(self::LIVE_MANAGER_URI);
                 break;
         }
 
@@ -73,6 +73,15 @@ class MakeCommerceClient implements HttpClientInterface
     public function setApiUrl(string $url)
     {
         $this->apiUrl = $url;
+    }
+
+    /**
+     * @param string $url
+     * @return void
+     */
+    public function setManagerUrl(string $url)
+    {
+        $this->managerUrl = $url;
     }
 
     /**
