@@ -47,15 +47,15 @@ class MakeCommerceClient implements HttpClientInterface
     {
         switch ($environment) {
             case Environment::DEV:
-                $this->apiUrl = self::DEV_BASE_URI;
+                $this->setApiUrl(self::DEV_BASE_URI);
                 $this->managerUrl = self::DEV_MANAGER_URI;
                 break;
             case Environment::TEST:
-                $this->apiUrl = self::TEST_BASE_URI;
+                $this->setApiUrl(self::TEST_BASE_URI);
                 $this->managerUrl = self::TEST_MANAGER_URI;
                 break;
             case Environment::LIVE:
-                $this->apiUrl = self::LIVE_BASE_URI;
+                $this->setApiUrl(self::LIVE_BASE_URI);
                 $this->managerUrl = self::LIVE_MANAGER_URI;
                 break;
         }
@@ -64,6 +64,15 @@ class MakeCommerceClient implements HttpClientInterface
         $this->secretKey = $shopSecret;
         $this->appInfo = base64_encode(json_encode($appInfo));
         $this->client = new Client(['auth' => [$this->shopId, $this->secretKey]]);
+    }
+
+    /**
+     * @param string $url
+     * @return void
+     */
+    public function setApiUrl(string $url)
+    {
+        $this->apiUrl = $url;
     }
 
     /**
