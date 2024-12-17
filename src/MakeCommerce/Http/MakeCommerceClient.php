@@ -33,6 +33,11 @@ class MakeCommerceClient implements HttpClientInterface
     private string $secretKey;
 
     /**
+     * @var string Instance ID
+     */
+    private string $instanceId;
+
+    /**
      * @var string $appInfo
      */
     private string $appInfo;
@@ -43,8 +48,13 @@ class MakeCommerceClient implements HttpClientInterface
      * @param string $shopSecret
      * @param array $appInfo
      */
-    public function __construct(string $environment, string $shopId, string $shopSecret, array $appInfo)
-    {
+    public function __construct(
+        string $environment,
+        string $shopId,
+        string $shopSecret,
+        string $instanceId,
+        array $appInfo
+    ) {
         switch ($environment) {
             case Environment::DEV:
                 $this->setApiUrl(self::DEV_BASE_URI);
@@ -62,6 +72,7 @@ class MakeCommerceClient implements HttpClientInterface
 
         $this->shopId = $shopId;
         $this->secretKey = $shopSecret;
+        $this->instanceId = $instanceId;
         $this->appInfo = base64_encode(json_encode($appInfo));
         $this->client = new Client(['auth' => [$this->shopId, $this->secretKey]]);
     }
@@ -157,7 +168,6 @@ class MakeCommerceClient implements HttpClientInterface
     /**
      * @param string $carrier
      * @param array $data
-     * @param string $instanceId
      * @param string $type
      * @return array|mixed
      * @throws GuzzleException
@@ -166,7 +176,6 @@ class MakeCommerceClient implements HttpClientInterface
     public function createShipment(
         string $carrier,
         array $data,
-        string $instanceId,
         string $type = self::TYPE_PARCEL
     ) {
         $this->validateShipmentType($type);
@@ -177,15 +186,10 @@ class MakeCommerceClient implements HttpClientInterface
             $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['CreateShipment']);
         }
 
-        $headers = [
-            'MakeCommerce-Shop-Instance' => $instanceId,
-        ];
-
-        return $this->makeApiRequest(self::POST, $endPoint, $data, $headers)->body;
+        return $this->makeApiRequest(self::POST, $endPoint, $data)->body;
     }
 
     /**
-     * @param string $instanceId
      * @param string $size
      * @param string $pageToken
      *
@@ -194,15 +198,10 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws MCException
      */
     public function getShipments(
-        string $instanceId,
         string $size = '',
         string $pageToken = ''
     ) {
         $endpoint = self::SHIPMENT_RESOURCES['Shipments'];
-
-        $headers = [
-            'MakeCommerce-Shop-Instance' => $instanceId
-        ];
 
         $queryString = http_build_query(
             [
@@ -213,11 +212,10 @@ class MakeCommerceClient implements HttpClientInterface
 
         $endpoint .= '?' . $queryString;
 
-        return $this->makeApiRequest(self::GET, $endpoint, [], $headers)->body;
+        return $this->makeApiRequest(self::GET, $endpoint)->body;
     }
 
     /**
-     * @param string $instanceId
      * @param string $shipmentId
      *
      * @return array|mixed|object
@@ -225,20 +223,14 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws MCException
      */
     public function getShipment(
-        string $instanceId,
         string $shipmentId
     ) {
         $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['Shipment']);
 
-        $headers = [
-            'MakeCommerce-Shop-Instance' => $instanceId
-        ];
-
-        return $this->makeApiRequest(self::GET, $endpoint, [], $headers)->body;
+        return $this->makeApiRequest(self::GET, $endpoint)->body;
     }
 
     /**
-     * @param string $instanceId
      * @param array $data
      * @param string $shipmentId
      *
@@ -247,15 +239,10 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws MCException
      */
     public function updateShipment(
-        string $instanceId,
         array $data,
         string $shipmentId
     ) {
         $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['Shipment']);
-
-        $headers = [
-            'MakeCommerce-Shop-Instance' => $instanceId
-        ];
 
         return $this->makeApiRequest(self::PUT, $endpoint, $data, $headers)->body;
     }
@@ -293,19 +280,17 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
-     * @param string $instanceId
      * @param string $width
      * @param string $height
      * @return void
      */
     public function visualizeConfigPage(
-        string $instanceId,
         string $width = '100%',
         string $height = '1000px'
     ) {
         $payload = json_encode([
             'shopId' => $this->shopId,
-            'instanceId' => $instanceId
+            'instanceId' => $this->instanceId
         ]);
 
         $token = hash_hmac('sha256', $payload, $this->secretKey);
@@ -314,7 +299,7 @@ class MakeCommerceClient implements HttpClientInterface
             [
                 "token" => $token,
                 "shopId" => $this->shopId,
-                "instanceId" => $instanceId
+                "instanceId" => $this->instanceId
             ]
         );
 
@@ -324,18 +309,16 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
-     * @param string $instanceId
      * @return MCResponse
      * @throws GuzzleException
      * @throws MCException
      */
-    public function connectShop(
-        string $instanceId
-    ) {
+    public function connectShop()
+    {
         $body = [
             'shopId' => $this->shopId,
             'secretKey' => $this->secretKey,
-            'instanceId' => $instanceId
+            'instanceId' => $this->instanceId
         ];
 
         $endpoint = self::MANAGER_RESOURCES['Connect'];
@@ -392,9 +375,7 @@ class MakeCommerceClient implements HttpClientInterface
             'Accept' => 'application/json',
             'Content-type' => 'application/json',
             'MakeCommerce-Shop' => $this->shopId,
-            'Authorization' => 'Basic ' . base64_encode(
-                $this->shopId . ':' . $this->secretKey
-            ),
+            'MakeCommerce-Shop-Instance' => $this->instanceId,
             'MakeCommerce-Shipping-AppInfo' => $this->appInfo
         ];
 
