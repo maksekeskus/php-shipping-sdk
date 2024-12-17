@@ -244,7 +244,7 @@ class MakeCommerceClient implements HttpClientInterface
     ) {
         $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['Shipment']);
 
-        return $this->makeApiRequest(self::PUT, $endpoint, $data, $headers)->body;
+        return $this->makeApiRequest(self::PUT, $endpoint, $data)->body;
     }
 
     /**
