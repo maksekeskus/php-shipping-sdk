@@ -16,10 +16,9 @@ $mcs = new MakeCommerceClient(
     Environment::TEST,
     'f7741ab2-7445-45f9-9af4-0d0408ef1e4c',
     'pfOsGD9oPaFEILwqFLHEHkPf7vZz4j3t36nAcufP1abqT9l99koyuC1IWAOcBeqt',
+    '6729eeb1d5cf39.89737764',
     $metaData
 );
-
-$instanceId = '6729eeb1d5cf39.89737764';
 
 echo "<html><head></head><body>";
 
@@ -72,14 +71,14 @@ $sender = [
 echo "<br><br>";
 
 try {
-    $mcs->connectShop($instanceId);
-    $mcs->visualizeConfigPage($instanceId);
+    $mcs->connectShop();
+    $mcs->visualizeConfigPage();
 } catch (Exception $e) {
     echo $e->getMessage();
 }
 
 try {
-    foreach ($mcs->createShipment('venipak', $shipments, $instanceId) as $shipment) {
+    foreach ($mcs->createShipment('venipak', $shipments) as $shipment) {
         echo $shipment->shipmentId . " <a target='_blank' href='" . $shipment->trackingLink . "'>track</a> 
      <a target='_blank' href='/label.php?shipmentId=" . $shipment->shipmentId . "'>label</a><br>";
     }

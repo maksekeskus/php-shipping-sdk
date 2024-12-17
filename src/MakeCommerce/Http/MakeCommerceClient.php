@@ -33,6 +33,11 @@ class MakeCommerceClient implements HttpClientInterface
     private string $secretKey;
 
     /**
+     * @var string Instance ID
+     */
+    private string $instanceId;
+
+    /**
      * @var string $appInfo
      */
     private string $appInfo;
@@ -43,8 +48,13 @@ class MakeCommerceClient implements HttpClientInterface
      * @param string $shopSecret
      * @param array $appInfo
      */
-    public function __construct(string $environment, string $shopId, string $shopSecret, array $appInfo)
-    {
+    public function __construct(
+        string $environment,
+        string $shopId,
+        string $shopSecret,
+        string $instanceId,
+        array $appInfo
+    ) {
         switch ($environment) {
             case Environment::DEV:
                 $this->setApiUrl(self::DEV_BASE_URI);
@@ -62,6 +72,7 @@ class MakeCommerceClient implements HttpClientInterface
 
         $this->shopId = $shopId;
         $this->secretKey = $shopSecret;
+        $this->instanceId = $instanceId;
         $this->appInfo = base64_encode(json_encode($appInfo));
         $this->client = new Client(['auth' => [$this->shopId, $this->secretKey]]);
     }
@@ -157,7 +168,6 @@ class MakeCommerceClient implements HttpClientInterface
     /**
      * @param string $carrier
      * @param array $data
-     * @param string $instanceId
      * @param string $type
      * @return array|mixed
      * @throws GuzzleException
@@ -166,7 +176,6 @@ class MakeCommerceClient implements HttpClientInterface
     public function createShipment(
         string $carrier,
         array $data,
-        string $instanceId,
         string $type = self::TYPE_PARCEL
     ) {
         $this->validateShipmentType($type);
@@ -177,11 +186,65 @@ class MakeCommerceClient implements HttpClientInterface
             $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['CreateShipment']);
         }
 
-        $headers = [
-            'MakeCommerce-Shop-Instance' => $instanceId,
-        ];
+        return $this->makeApiRequest(self::POST, $endPoint, $data)->body;
+    }
 
-        return $this->makeApiRequest(self::POST, $endPoint, $data, $headers)->body;
+    /**
+     * @param string $size
+     * @param string $pageToken
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function getShipments(
+        string $size = '',
+        string $pageToken = ''
+    ) {
+        $endpoint = self::SHIPMENT_RESOURCES['Shipments'];
+
+        $queryString = http_build_query(
+            [
+                "size" => $size,
+                "pageToken" => $pageToken
+            ]
+        );
+
+        $endpoint .= '?' . $queryString;
+
+        return $this->makeApiRequest(self::GET, $endpoint)->body;
+    }
+
+    /**
+     * @param string $shipmentId
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function getShipment(
+        string $shipmentId
+    ) {
+        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['Shipment']);
+
+        return $this->makeApiRequest(self::GET, $endpoint)->body;
+    }
+
+    /**
+     * @param array $data
+     * @param string $shipmentId
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function updateShipment(
+        array $data,
+        string $shipmentId
+    ) {
+        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['Shipment']);
+
+        return $this->makeApiRequest(self::PUT, $endpoint, $data, $headers)->body;
     }
 
     /**
@@ -217,19 +280,17 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
-     * @param string $instanceId
      * @param string $width
      * @param string $height
      * @return void
      */
     public function visualizeConfigPage(
-        string $instanceId,
         string $width = '100%',
         string $height = '1000px'
     ) {
         $payload = json_encode([
             'shopId' => $this->shopId,
-            'instanceId' => $instanceId
+            'instanceId' => $this->instanceId
         ]);
 
         $token = hash_hmac('sha256', $payload, $this->secretKey);
@@ -238,7 +299,7 @@ class MakeCommerceClient implements HttpClientInterface
             [
                 "token" => $token,
                 "shopId" => $this->shopId,
-                "instanceId" => $instanceId
+                "instanceId" => $this->instanceId
             ]
         );
 
@@ -248,18 +309,16 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
-     * @param string $instanceId
      * @return MCResponse
      * @throws GuzzleException
      * @throws MCException
      */
-    public function connectShop(
-        string $instanceId
-    ) {
+    public function connectShop()
+    {
         $body = [
             'shopId' => $this->shopId,
             'secretKey' => $this->secretKey,
-            'instanceId' => $instanceId
+            'instanceId' => $this->instanceId
         ];
 
         $endpoint = self::MANAGER_RESOURCES['Connect'];
@@ -316,6 +375,7 @@ class MakeCommerceClient implements HttpClientInterface
             'Accept' => 'application/json',
             'Content-type' => 'application/json',
             'MakeCommerce-Shop' => $this->shopId,
+            'MakeCommerce-Shop-Instance' => $this->instanceId,
             'MakeCommerce-Shipping-AppInfo' => $this->appInfo
         ];
 
@@ -332,6 +392,10 @@ class MakeCommerceClient implements HttpClientInterface
             case self::POST:
                 $requestContent['body'] = json_encode($body);
                 $response = $this->client->post($uri, $requestContent);
+                break;
+            case self::PUT:
+                $requestContent['body'] = json_encode($body);
+                $response = $this->client->put($uri, $requestContent);
                 break;
             default:
                 throw new MCException('Request type should be defined!', 400);
