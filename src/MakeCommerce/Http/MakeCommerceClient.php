@@ -185,6 +185,82 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
+     * @param string $instanceId
+     * @param string $size
+     * @param string $pageToken
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function getShipments(
+        string $instanceId,
+        string $size = '',
+        string $pageToken = ''
+    ) {
+        $endpoint = self::SHIPMENT_RESOURCES['Shipments'];
+
+        $headers = [
+            'MakeCommerce-Shop-Instance' => $instanceId
+        ];
+
+        $queryString = http_build_query(
+            [
+                "size" => $size,
+                "pageToken" => $pageToken
+            ]
+        );
+
+        $endpoint .= '?' . $queryString;
+
+        return $this->makeApiRequest(self::GET, $endpoint, [], $headers)->body;
+    }
+
+    /**
+     * @param string $instanceId
+     * @param string $shipmentId
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function getShipment(
+        string $instanceId,
+        string $shipmentId
+    ) {
+        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['Shipment']);
+
+        $headers = [
+            'MakeCommerce-Shop-Instance' => $instanceId
+        ];
+
+        return $this->makeApiRequest(self::GET, $endpoint, [], $headers)->body;
+    }
+
+    /**
+     * @param string $instanceId
+     * @param array $data
+     * @param string $shipmentId
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function updateShipment(
+        string $instanceId,
+        array $data,
+        string $shipmentId
+    ) {
+        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['Shipment']);
+
+        $headers = [
+            'MakeCommerce-Shop-Instance' => $instanceId
+        ];
+
+        return $this->makeApiRequest(self::PUT, $endpoint, $data, $headers)->body;
+    }
+
+    /**
      * @param string $carrier
      * @param string $shipmentId
      * @param string $type
@@ -316,6 +392,9 @@ class MakeCommerceClient implements HttpClientInterface
             'Accept' => 'application/json',
             'Content-type' => 'application/json',
             'MakeCommerce-Shop' => $this->shopId,
+            'Authorization' => 'Basic ' . base64_encode(
+                $this->shopId . ':' . $this->secretKey
+            ),
             'MakeCommerce-Shipping-AppInfo' => $this->appInfo
         ];
 
@@ -332,6 +411,10 @@ class MakeCommerceClient implements HttpClientInterface
             case self::POST:
                 $requestContent['body'] = json_encode($body);
                 $response = $this->client->post($uri, $requestContent);
+                break;
+            case self::PUT:
+                $requestContent['body'] = json_encode($body);
+                $response = $this->client->put($uri, $requestContent);
                 break;
             default:
                 throw new MCException('Request type should be defined!', 400);
