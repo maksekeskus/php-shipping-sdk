@@ -118,8 +118,11 @@ class MakeCommerceClient implements HttpClientInterface
 
     /**
      * @param string $carrier
-     * @return object
-     * @throws GuzzleException|MCException
+     * @param string $type
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
      */
     public function getCarrier(string $carrier, string $type = self::TYPE_PARCEL)
     {
@@ -136,8 +139,11 @@ class MakeCommerceClient implements HttpClientInterface
 
     /**
      * @param string $carrier
-     * @return array
-     * @throws GuzzleException|MCException
+     * @param string $type
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
      */
     public function listDestinations(string $carrier, string $type = self::TYPE_PARCEL)
     {
