@@ -6,6 +6,7 @@ interface HttpClientInterface
 {
     public const GET = 'GET';
     public const POST = 'POST';
+    public const PUT = 'PUT';
     public const DEV_BASE_URI = 'https://shipping.dev.makecommerce.net';
     public const TEST_BASE_URI = 'https://shipping.test.makecommerce.net';
     public const LIVE_BASE_URI = 'https://shipping.makecommerce.net';
@@ -30,6 +31,11 @@ interface HttpClientInterface
         'ListCouriers' => '/couriers'
     ];
 
+    public const SHIPMENT_RESOURCES = [
+        'Shipments' => '/shipments/',
+        'Shipment' => '/shipments/{id}'
+    ];
+
     public const CARRIER_RESOURCES = [
       'Authenticate' => '/authenticate/{carrier}'
     ];
@@ -39,7 +45,7 @@ interface HttpClientInterface
         'Connect' => '/public/ui/connect'
     ];
 
-    public const TYPE_PARCEL = 'parcel';
+    public const TYPE_PARCEL = 'parcelmachine';
 
     public const TYPE_COURIER = 'courier';
 }
