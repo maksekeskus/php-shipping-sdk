@@ -46,6 +46,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @param string $environment
      * @param string $shopId
      * @param string $shopSecret
+     * @param string $instanceId
      * @param array $appInfo
      */
     public function __construct(
