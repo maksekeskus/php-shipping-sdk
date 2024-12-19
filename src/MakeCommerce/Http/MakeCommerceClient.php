@@ -269,13 +269,6 @@ class MakeCommerceClient implements HttpClientInterface
     ): string {
         $this->validateShipmentType($type);
 
-        if ($type === self::TYPE_COURIER) {
-            throw new MCException(
-                'Credentials must be included!',
-                400
-            );
-        }
-
         if ($type === self::TYPE_PARCEL) {
             $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['GetShipmentLabel']);
         } else {
