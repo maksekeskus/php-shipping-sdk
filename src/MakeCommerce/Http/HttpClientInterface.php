@@ -32,7 +32,7 @@ interface HttpClientInterface
     ];
 
     public const SHIPMENT_RESOURCES = [
-        'Shipments' => '/shipments/',
+        'Shipments' => '/shipments',
         'Shipment' => '/shipments/{id}'
     ];
 
