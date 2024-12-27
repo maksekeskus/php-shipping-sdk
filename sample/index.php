@@ -22,6 +22,8 @@ $mcs = new MakeCommerceClient(
 
 echo "<html><head></head><body>";
 
+//TODO Fix example file after flattening the API
+
 foreach ($mcs->getParcelmachines() as $carrier) {
     echo "<img src='$carrier->logo' style='height: 24px;' title='$carrier->title' alt='$carrier->title' />";
     foreach ($carrier->destinations as $destination) {
