@@ -101,6 +101,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws Exception
      * @throws GuzzleException|MCException
      */
+    //TODO How will this change with the flattening
     public function getParcelmachines(): array
     {
         return $this->makeApiRequest(self::GET, self::PARCEL_MACHINE_RESOURCES['ListParcelmachines'])->body;
@@ -111,6 +112,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws Exception
      * @throws GuzzleException|MCException
      */
+    //TODO How will this change with the flattening
     public function getCouriers(): array
     {
         return $this->makeApiRequest(self::GET, self::COURIER_RESOURCES['ListCouriers'])->body;
@@ -124,6 +126,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws GuzzleException
      * @throws MCException
      */
+    //TODO How will this change with the flattening
     public function getCarrier(string $carrier, string $type = self::TYPE_PARCEL)
     {
         $this->validateShipmentType($type);
@@ -145,6 +148,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws GuzzleException
      * @throws MCException
      */
+    //TODO How will this change with the flattening
     public function listDestinations(string $carrier, string $type = self::TYPE_PARCEL)
     {
         $this->validateShipmentType($type);
@@ -164,6 +168,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @return array
      * @throws GuzzleException|MCException
      */
+    //TODO How will this change with the flattening
     public function listCarrierDestinations(string $carrier, string $country)
     {
         $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['ListCarrierDestinations']);
@@ -183,17 +188,12 @@ class MakeCommerceClient implements HttpClientInterface
     public function createShipment(
         string $carrier,
         array $data,
-        string $type = self::TYPE_PARCEL
+        string $type = self::TYPE_PICKUPPOINT
     ) {
+        //TODO Headers for carrier and type?
         $this->validateShipmentType($type);
 
-        if ($type === self::TYPE_PARCEL) {
-            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['CreateShipment']);
-        } else {
-            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['CreateShipment']);
-        }
-
-        return $this->makeApiRequest(self::POST, $endPoint, $data)->body;
+        return $this->makeApiRequest(self::POST, self::SHIPMENT_RESOURCES['Shipments'], $data)->body;
     }
 
     /**
@@ -265,18 +265,16 @@ class MakeCommerceClient implements HttpClientInterface
     public function getLabel(
         string $carrier,
         string $shipmentId,
-        string $type = self::TYPE_PARCEL
+        string $type = self::TYPE_PICKUPPOINT
     ): string {
+        //TODO Headers for carrier and type?
         $this->validateShipmentType($type);
 
-        if ($type === self::TYPE_PARCEL) {
-            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['GetShipmentLabel']);
-        } else {
-            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['GetShipmentLabel']);
-        }
-        $endPoint = str_replace('{shipment}', $shipmentId, $endPoint);
+        $endPoint = self::SHIPMENT_RESOURCES['Label'];
 
-        return $this->makeApiRequest(self::GET, $endPoint, [])->rawBody;
+        $endPoint = str_replace('{id}', $shipmentId, $endPoint);
+
+        return $this->makeApiRequest(self::GET, $endPoint)->rawBody;
     }
 
     /**
@@ -410,9 +408,9 @@ class MakeCommerceClient implements HttpClientInterface
      */
     private function validateShipmentType(string $type): void
     {
-        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
+        if (!in_array($type, [self::TYPE_PICKUPPOINT, self::TYPE_COURIER])) {
             throw new MCException(
-                'Shipment type is invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
+                'Shipment type is invalid. Must be either: ' . self::TYPE_PICKUPPOINT . ' or ' . self::TYPE_COURIER,
                 400
             );
         }

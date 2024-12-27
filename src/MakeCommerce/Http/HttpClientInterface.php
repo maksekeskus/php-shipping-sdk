@@ -16,24 +16,18 @@ interface HttpClientInterface
 
     public const PARCEL_MACHINE_RESOURCES = [
         'Carrier' => '/parcelmachines/{carrier}',
-        'CreateShipment' => '/parcelmachines/{carrier}/shipments',
-        'GetShipmentLabel' => '/parcelmachines/{carrier}/shipments/{shipment}/label',
-        'ListCarrierDestinations' => '/parcelmachines/{carrier}/destinations/{country}',
-        'ListDestinations' => '/parcelmachines/{carrier}/destinations',
         'ListParcelmachines' => '/parcelmachines'
     ];
 
     public const COURIER_RESOURCES = [
         'Carrier' => '/couriers/{carrier}',
-        'CreateShipment' => '/couriers/{carrier}/shipments',
-        'GetShipmentLabel' => '/couriers/{carrier}/shipments/{shipment}/label',
-        'ListDestinations' => '/couriers/{carrier}/destinations',
         'ListCouriers' => '/couriers'
     ];
 
     public const SHIPMENT_RESOURCES = [
         'Shipments' => '/shipments',
-        'Shipment' => '/shipments/{id}'
+        'Shipment' => '/shipments/{id}',
+        'Label' => '/shipments/{id}/label'
     ];
 
     public const CARRIER_RESOURCES = [
@@ -45,7 +39,7 @@ interface HttpClientInterface
         'Connect' => '/public/ui/connect'
     ];
 
-    public const TYPE_PARCEL = 'parcelmachine';
+    public const TYPE_PICKUPPOINT = 'pickuppoint';
 
     public const TYPE_COURIER = 'courier';
 }
