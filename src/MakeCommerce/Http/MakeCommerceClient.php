@@ -169,9 +169,6 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
-     * @param string $carrier
-     * @param string $type
-     *
      * @return array|mixed|object
      * @throws GuzzleException
      * @throws MCException
@@ -181,29 +178,6 @@ class MakeCommerceClient implements HttpClientInterface
     public function getCouriers(): array
     {
         return $this->makeApiRequest(self::GET, self::COURIER_RESOURCES['listCouriers'])->body;
-    }
-
-    /**
-     * @param string $carrier
-     * @param string $type
-     *
-     * @return array|mixed|object
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    //TODO How will this change with the flattening
-
-    public function getCarrier(string $carrier, string $type = self::TYPE_PICKUPPOINT)
-    {
-        $this->validateShipmentType($type);
-
-        if ($type === self::TYPE_PICKUPPOINT) {
-            $endPoint = self::PICKUPPOINT_RESOURCES['Carrier'];
-        } else {
-            $endPoint = self::COURIER_RESOURCES['Carrier'];
-        }
-
-        return $this->makeApiRequest(self::GET, $endPoint)->body;
     }
 
     /**
