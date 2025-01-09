@@ -14,29 +14,32 @@ interface HttpClientInterface
     public const TEST_MANAGER_URI = 'https://shipping-manager.test.makecommerce.net';
     public const LIVE_MANAGER_URI = 'https://shipping-manager.makecommerce.net';
 
-    public const PARCEL_MACHINE_RESOURCES = [
-        'Carrier' => '/parcelmachines/{carrier}',
-        'ListParcelmachines' => '/parcelmachines'
+    public const PICKUPPOINT_RESOURCES = [
+        'listPickupPoints' => '/pickuppoint',
+        'listCarrierDestinations' => '/pickuppoint/{country}'
     ];
 
     public const COURIER_RESOURCES = [
-        'Carrier' => '/couriers/{carrier}',
-        'ListCouriers' => '/couriers'
+        'listCouriers' => '/courier'
     ];
 
     public const SHIPMENT_RESOURCES = [
-        'Shipments' => '/shipments',
-        'Shipment' => '/shipments/{id}',
-        'Label' => '/shipments/{id}/label'
+        'shipments' => '/shipments',
+        'shipment' => '/shipments/{id}',
+        'label' => '/shipments/{id}/label'
     ];
 
     public const CARRIER_RESOURCES = [
-      'Authenticate' => '/authenticate/{carrier}'
+      'authenticate' => '/authenticate'
+    ];
+
+    public const RATE_RESOURCES = [
+      'rates' => '/rates'
     ];
 
     public const MANAGER_RESOURCES = [
-        'VisualizeConfigPage' => '/public/ui/?',
-        'Connect' => '/public/ui/connect'
+        'visualizeConfigPage' => '/public/ui/?',
+        'connect' => '/public/ui/connect'
     ];
 
     public const TYPE_PICKUPPOINT = 'pickuppoint';
