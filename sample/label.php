@@ -13,13 +13,14 @@ $metaData = [
 ];
 
 $mcs = new MakeCommerceClient(
-    Environment::TEST,
-    'f7741ab2-7445-45f9-9af4-0d0408ef1e4c',
-    'pfOsGD9oPaFEILwqFLHEHkPf7vZz4j3t36nAcufP1abqT9l99koyuC1IWAOcBeqt',
+    Environment::DEV,
+    '213d0d1d-ff95-46ef-adcb-db466abc462c',
+    'QWEhT30Lx73t2yi8zWKqC0kvlUIIJAkwHU0fIrEsi1Ofc8XlzjgEcIO8VHrss2gs',
+    'super-special-local-dev-shop-instance',
     $metaData
 );
 
 header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="venipak-'.$_GET["shipmentId"].'-label.pdf"');
+header('Content-Disposition: inline; filename="unisend-'.$_GET["shipmentId"].'-label.pdf"');
 
-echo $mcs->getLabel('venipak', $_GET["shipmentId"]);
+echo $mcs->getLabel('unisend', $_GET["shipmentId"]);

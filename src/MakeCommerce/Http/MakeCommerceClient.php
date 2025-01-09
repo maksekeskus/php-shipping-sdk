@@ -101,9 +101,10 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws Exception
      * @throws GuzzleException|MCException
      */
-    public function getParcelmachines(): array
+    //TODO How will this change with the flattening
+    public function getPickuppoints(): array
     {
-        return $this->makeApiRequest(self::GET, self::PARCEL_MACHINE_RESOURCES['ListParcelmachines'])->body;
+        return $this->makeApiRequest(self::GET, self::PICKUPPOINT_RESOURCES['listPickupPoints'])->body;
     }
 
     /**
@@ -111,244 +112,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws Exception
      * @throws GuzzleException|MCException
      */
-    public function getCouriers(): array
-    {
-        return $this->makeApiRequest(self::GET, self::COURIER_RESOURCES['ListCouriers'])->body;
-    }
-
-    /**
-     * @param string $carrier
-     * @param string $type
-     *
-     * @return array|mixed|object
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    public function getCarrier(string $carrier, string $type = self::TYPE_PARCEL)
-    {
-        $this->validateShipmentType($type);
-
-        if ($type === self::TYPE_PARCEL) {
-            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['Carrier']);
-        } else {
-            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['Carrier']);
-        }
-
-        return $this->makeApiRequest(self::GET, $endPoint)->body;
-    }
-
-    /**
-     * @param string $carrier
-     * @param string $type
-     *
-     * @return array|mixed|object
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    public function listDestinations(string $carrier, string $type = self::TYPE_PARCEL)
-    {
-        $this->validateShipmentType($type);
-
-        if ($type === self::TYPE_PARCEL) {
-            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['ListDestinations']);
-        } else {
-            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['ListDestinations']);
-        }
-
-        return $this->makeApiRequest(self::GET, $endPoint)->body;
-    }
-
-    /**
-     * @param string $carrier
-     * @param string $country
-     * @return array
-     * @throws GuzzleException|MCException
-     */
-    public function listCarrierDestinations(string $carrier, string $country)
-    {
-        $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['ListCarrierDestinations']);
-        $endPoint = str_replace('{country}', mb_strtolower($country), $endPoint);
-
-        return $this->makeApiRequest(self::GET, $endPoint)->body;
-    }
-
-    /**
-     * @param string $carrier
-     * @param array $data
-     * @param string $type
-     * @return array|mixed
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    public function createShipment(
-        string $carrier,
-        array $data,
-        string $type = self::TYPE_PARCEL
-    ) {
-        $this->validateShipmentType($type);
-
-        if ($type === self::TYPE_PARCEL) {
-            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['CreateShipment']);
-        } else {
-            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['CreateShipment']);
-        }
-
-        return $this->makeApiRequest(self::POST, $endPoint, $data)->body;
-    }
-
-    /**
-     * @param string $size
-     * @param string $pageToken
-     *
-     * @return array|mixed|object
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    public function getShipments(
-        string $size = '',
-        string $pageToken = ''
-    ) {
-        $endpoint = self::SHIPMENT_RESOURCES['Shipments'];
-
-        $queryString = http_build_query(
-            [
-                "size" => $size,
-                "pageToken" => $pageToken
-            ]
-        );
-
-        $endpoint .= '?' . $queryString;
-
-        return $this->makeApiRequest(self::GET, $endpoint)->body;
-    }
-
-    /**
-     * @param string $shipmentId
-     *
-     * @return array|mixed|object
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    public function getShipment(
-        string $shipmentId
-    ) {
-        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['Shipment']);
-
-        return $this->makeApiRequest(self::GET, $endpoint)->body;
-    }
-
-    /**
-     * @param array $data
-     * @param string $shipmentId
-     *
-     * @return array|mixed|object
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    public function updateShipment(
-        array $data,
-        string $shipmentId
-    ) {
-        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['Shipment']);
-
-        return $this->makeApiRequest(self::PUT, $endpoint, $data)->body;
-    }
-
-    /**
-     * @param string $carrier
-     * @param string $shipmentId
-     * @param string $type
-     * @return string
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    public function getLabel(
-        string $carrier,
-        string $shipmentId,
-        string $type = self::TYPE_PARCEL
-    ): string {
-        $this->validateShipmentType($type);
-
-        if ($type === self::TYPE_PARCEL) {
-            $endPoint = str_replace('{carrier}', $carrier, self::PARCEL_MACHINE_RESOURCES['GetShipmentLabel']);
-        } else {
-            $endPoint = str_replace('{carrier}', $carrier, self::COURIER_RESOURCES['GetShipmentLabel']);
-        }
-        $endPoint = str_replace('{shipment}', $shipmentId, $endPoint);
-
-        return $this->makeApiRequest(self::GET, $endPoint, [])->rawBody;
-    }
-
-    /**
-     * @param string $width
-     * @param string $height
-     * @return void
-     */
-    public function visualizeConfigPage(
-        string $width = '100%',
-        string $height = '1000px'
-    ) {
-        $payload = json_encode([
-            'shopId' => $this->shopId,
-            'instanceId' => $this->instanceId
-        ]);
-
-        $token = hash_hmac('sha256', $payload, $this->secretKey);
-
-        $queryString = http_build_query(
-            [
-                "token" => $token,
-                "shopId" => $this->shopId,
-                "instanceId" => $this->instanceId
-            ]
-        );
-
-        $iframeUrl = $this->managerUrl . self::MANAGER_RESOURCES['VisualizeConfigPage'] . $queryString;
-
-        echo '<iframe src="' . $iframeUrl . '" height="' . $height . '" width="' . $width . '"></iframe>';
-    }
-
-    /**
-     * @return MCResponse
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    public function connectShop()
-    {
-        $body = [
-            'shopId' => $this->shopId,
-            'secretKey' => $this->secretKey,
-            'instanceId' => $this->instanceId
-        ];
-
-        $endpoint = self::MANAGER_RESOURCES['Connect'];
-
-        return $this->makeApiRequest(self::POST, $endpoint, $body, [], true);
-    }
-
-    /**
-     * @param string $carrier
-     * @param array $credentials
-     *
-     * @return bool
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    public function validateCarrierCredentials(
-        string $carrier,
-        array $credentials
-    ) {
-        $headers = [
-            'MakeCommerce-Carrier-Credentials' => base64_encode(json_encode($credentials))
-        ];
-
-        $endpoint = str_replace('{carrier}', $carrier, self::CARRIER_RESOURCES['Authenticate']);
-
-        $response = $this->makeApiRequest(self::GET, $endpoint, [], $headers);
-
-        return $response->code === 200;
-    }
-
+    //TODO How will this change with the flattening
     /**
      * @param string $method
      * @param string $endpoint
@@ -405,16 +169,233 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    //TODO How will this change with the flattening
+
+    public function getCouriers(): array
+    {
+        return $this->makeApiRequest(self::GET, self::COURIER_RESOURCES['listCouriers'])->body;
+    }
+
+    /**
+     * @param string $carrier
+     * @param string $country
+     * @return array
+     * @throws GuzzleException|MCException
+     */
+    //TODO How will this change with the flattening
+    /**
      * @param string $type
      * @throws MCException
      */
     private function validateShipmentType(string $type): void
     {
-        if (!in_array($type, [self::TYPE_PARCEL, self::TYPE_COURIER])) {
+        if (!in_array($type, [self::TYPE_PICKUPPOINT, self::TYPE_COURIER])) {
             throw new MCException(
-                'Shipment type is invalid. Must be either: ' . self::TYPE_PARCEL . ' or ' . self::TYPE_COURIER,
+                'Shipment type is invalid. Must be either: ' . self::TYPE_PICKUPPOINT . ' or ' . self::TYPE_COURIER,
                 400
             );
         }
+    }
+
+    /**
+     * @throws MCException
+     * @throws GuzzleException
+     */
+    public function getRates(array $data): object
+    {
+        return $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data)->body;
+    }
+
+    public function listCarrierDestinations(string $carrier, string $country): array
+    {
+        $endPoint = str_replace(
+            '{country}',
+            mb_strtolower($country),
+            self::PICKUPPOINT_RESOURCES['listCarrierDestinations']
+        );
+
+
+        return $this->makeApiRequest(self::GET, $endPoint, [], ['MakeCommerce-Carrier' => $carrier])->body;
+    }
+
+    /**
+     * @param string $carrier
+     * @param array $shipment
+     * @param string $type
+     * @return array|mixed
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function createShipment(
+        string $carrier,
+        array $shipment,
+        string $type
+    ) {
+        $this->validateShipmentType($type);
+
+        return $this->makeApiRequest(
+            self::POST,
+            self::SHIPMENT_RESOURCES['shipments'],
+            $shipment,
+            [
+                'MakeCommerce-Carrier' => $carrier,
+                'MakeCommerce-Method' => $type
+            ]
+        )->body;
+    }
+
+    /**
+     * @param string $size
+     * @param string $pageToken
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function getShipments(
+        string $size = '',
+        string $pageToken = ''
+    ) {
+        $endpoint = self::SHIPMENT_RESOURCES['shipments'];
+
+        $queryString = http_build_query(
+            [
+                "size" => $size,
+                "pageToken" => $pageToken
+            ]
+        );
+
+        $endpoint .= '?' . $queryString;
+
+        return $this->makeApiRequest(self::GET, $endpoint)->body;
+    }
+
+    /**
+     * @param string $shipmentId
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function getShipment(
+        string $shipmentId
+    ) {
+        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['shipment']);
+
+        return $this->makeApiRequest(self::GET, $endpoint)->body;
+    }
+
+    /**
+     * @param array $data
+     * @param string $shipmentId
+     *
+     * @return array|mixed|object
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function updateShipment(
+        array $data,
+        string $shipmentId
+    ) {
+        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['shipment']);
+
+        return $this->makeApiRequest(self::PUT, $endpoint, $data)->body;
+    }
+
+    /**
+     * @param string $carrier
+     * @param string $shipmentId
+     * @param string $type
+     * @return string
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function getLabel(
+        string $carrier,
+        string $shipmentId,
+        string $type = self::TYPE_PICKUPPOINT
+    ): string {
+        //TODO Headers for carrier and type?
+        $this->validateShipmentType($type);
+
+        $endPoint = self::SHIPMENT_RESOURCES['label'];
+
+        $endPoint = str_replace('{id}', $shipmentId, $endPoint);
+
+        return $this->makeApiRequest(self::GET, $endPoint)->rawBody;
+    }
+
+    /**
+     * @param string $width
+     * @param string $height
+     * @return void
+     */
+    public function visualizeConfigPage(
+        string $width = '100%',
+        string $height = '1000px'
+    ) {
+        $payload = json_encode([
+            'shopId' => $this->shopId,
+            'instanceId' => $this->instanceId
+        ]);
+
+        $token = hash_hmac('sha256', $payload, $this->secretKey);
+
+        $queryString = http_build_query(
+            [
+                "token" => $token,
+                "shopId" => $this->shopId,
+                "instanceId" => $this->instanceId
+            ]
+        );
+
+        $iframeUrl = $this->managerUrl . self::MANAGER_RESOURCES['visualizeConfigPage'] . $queryString;
+
+        echo '<iframe src="' . $iframeUrl . '" height="' . $height . '" width="' . $width . '"></iframe>';
+    }
+
+    /**
+     * @return MCResponse
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function connectShop()
+    {
+        $body = [
+            'shopId' => $this->shopId,
+            'secretKey' => $this->secretKey,
+            'instanceId' => $this->instanceId
+        ];
+
+        $endpoint = self::MANAGER_RESOURCES['connect'];
+
+        return $this->makeApiRequest(self::POST, $endpoint, $body, [], true);
+    }
+
+    /**
+     * @param string $carrier
+     * @param array $credentials
+     *
+     * @return bool
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function validateCarrierCredentials(
+        string $carrier,
+        array $credentials
+    ) {
+        $headers = [
+            'MakeCommerce-Carrier-Credentials' => base64_encode(json_encode($credentials))
+        ];
+
+        $endpoint = str_replace('{carrier}', $carrier, self::CARRIER_RESOURCES['authenticate']);
+
+        $response = $this->makeApiRequest(self::GET, $endpoint, [], $headers);
+
+        return $response->code === 200;
     }
 }
