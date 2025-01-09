@@ -23,13 +23,13 @@ $mcs = new MakeCommerceClient(
 echo "<pre>";
 
 
-/*
+
 //rates
-Rates: ' . print_r($mcs->getRates([
+echo 'Rates: ' . print_r($mcs->getRates([
     'weight' => '2500',
     'destination' => 'EE'
 ]), true);
-*/
+
 
 //pickuppoint carriers
 echo '<br>
@@ -70,14 +70,11 @@ echo '<br>
 Label: <a target="_blank" href="/label.php?shipmentId='.$shipment->trackingLink.'">'.$shipment->trackingLink.'</a>
 ';
 
-/*
 try {
     $mcs->connectShop();
     $mcs->visualizeConfigPage();
 } catch (Exception $e) {
     echo $e->getMessage();
 }
-*/
-
 
 echo "</pre>";
