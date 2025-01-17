@@ -290,7 +290,9 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
-     * @param array $data
+     * @param string $carrier
+     * @param array $shipment
+     * @param string $type
      * @param string $shipmentId
      *
      * @return array|mixed|object
@@ -298,12 +300,24 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws MCException
      */
     public function updateShipment(
-        array $data,
+        string $carrier,
+        array $shipment,
+        string $type,
         string $shipmentId
     ) {
+        $this->validateShipmentType($type);
+
         $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['shipment']);
 
-        return $this->makeApiRequest(self::PUT, $endpoint, $data)->body;
+        return $this->makeApiRequest(
+            self::PUT,
+            $endpoint,
+            $shipment,
+            [
+                'MakeCommerce-Carrier' => $carrier,
+                'MakeCommerce-Method' => $type
+            ]
+        )->body;
     }
 
     /**
