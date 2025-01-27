@@ -352,6 +352,7 @@ class MakeCommerceClient implements HttpClientInterface
         string $width = '100%',
         string $height = '1000px'
     ) {
+        //TODO: return iframe url instead of echoing the iframe.
         $payload = json_encode([
             'shopId' => $this->shopId,
             'instanceId' => $this->instanceId
@@ -373,16 +374,18 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
+     * @param string $orderUrl
      * @return MCResponse
      * @throws GuzzleException
      * @throws MCException
      */
-    public function connectShop()
+    public function connectShop(string $orderUrl = ''): MCResponse
     {
         $body = [
             'shopId' => $this->shopId,
             'secretKey' => $this->secretKey,
-            'instanceId' => $this->instanceId
+            'instanceId' => $this->instanceId,
+            'orderUrl' => $orderUrl
         ];
 
         $endpoint = self::MANAGER_RESOURCES['connect'];
@@ -401,7 +404,7 @@ class MakeCommerceClient implements HttpClientInterface
     public function validateCarrierCredentials(
         string $carrier,
         array $credentials
-    ) {
+    ): bool {
         $headers = [
             'MakeCommerce-Carrier-Credentials' => base64_encode(json_encode($credentials))
         ];
