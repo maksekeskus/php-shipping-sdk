@@ -343,50 +343,42 @@ class MakeCommerceClient implements HttpClientInterface
         return $this->makeApiRequest(self::GET, $endPoint)->rawBody;
     }
 
-    /**
-     * @param string $width
-     * @param string $height
-     * @return void
-     */
-    public function visualizeConfigPage(
-        string $width = '100%',
-        string $height = '1000px'
-    ) {
-        //TODO: return iframe url instead of echoing the iframe.
-        $payload = json_encode([
-            'shopId' => $this->shopId,
-            'instanceId' => $this->instanceId
-        ]);
 
-        $token = hash_hmac('sha256', $payload, $this->secretKey);
+    /**
+     * @param string $jwt
+     * @return string
+     */
+    public function getIframeUrl(string $jwt): string
+    {
 
         $queryString = http_build_query(
             [
-                "token" => $token,
-                "shopId" => $this->shopId,
-                "instanceId" => $this->instanceId
+                "jwt" => $jwt
             ]
         );
 
-        $iframeUrl = $this->managerUrl . self::MANAGER_RESOURCES['visualizeConfigPage'] . $queryString;
-
-        echo '<iframe src="' . $iframeUrl . '" height="' . $height . '" width="' . $width . '"></iframe>';
+        return $this->managerUrl . self::MANAGER_RESOURCES['iframe'] . $queryString;
     }
 
     /**
+     * @param string $userAgent
+     * @param string $remoteAddr
      * @param string $orderUrl
      * @return MCResponse
      * @throws GuzzleException
      * @throws MCException
      */
-    public function connectShop(string $orderUrl = ''): MCResponse
+    public function connectShop(string $userAgent, string $remoteAddr, string $orderUrl = ''): MCResponse
     {
         $body = [
             'shopId' => $this->shopId,
             'secretKey' => $this->secretKey,
             'instanceId' => $this->instanceId,
-            'orderUrl' => $orderUrl
+            'orderUrl' => $orderUrl,
+            'HTTP_USER_AGENT' => $userAgent,
+            'REMOTE_ADDR' => $remoteAddr
         ];
+
 
         $endpoint = self::MANAGER_RESOURCES['connect'];
 
