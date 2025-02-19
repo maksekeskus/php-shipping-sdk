@@ -38,7 +38,7 @@ interface HttpClientInterface
     ];
 
     public const MANAGER_RESOURCES = [
-        'visualizeConfigPage' => '/public/ui/?',
+        'iframe' => '/public/ui/?',
         'connect' => '/public/ui/connect'
     ];
 
