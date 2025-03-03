@@ -382,7 +382,7 @@ class MakeCommerceClient implements HttpClientInterface
 
         $endpoint = self::MANAGER_RESOURCES['connect'];
 
-        return $this->makeApiRequest(self::POST, $endpoint, $body, [], true);
+        return $this->makeApiRequest(self::POST, $endpoint, $body, []);
     }
 
     /**
