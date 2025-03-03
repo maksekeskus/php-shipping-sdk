@@ -1,6 +1,6 @@
 {
   "name": "maksekeskus/php-shipping-sdk",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "MakeCommerce PHP shipping SDK",
   "keywords": [
     "rest",
