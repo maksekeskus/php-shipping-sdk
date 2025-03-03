@@ -39,7 +39,7 @@ interface HttpClientInterface
 
     public const MANAGER_RESOURCES = [
         'iframe' => '/public/ui/?',
-        'connect' => '/public/ui/connect'
+        'connect' => '/connect'
     ];
 
     public const TYPE_PICKUPPOINT = 'pickuppoint';
