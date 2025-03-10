@@ -205,9 +205,12 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws MCException
      * @throws GuzzleException
      */
-    public function getRates(array $data): object
+    public function getRates(array $data, string $locale = 'en'): object
     {
-        return $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data)->body;
+        $additionalHeaders = [
+            'MakeCommerce-User-Locale' => $locale
+        ];
+        return $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data, $additionalHeaders)->body;
     }
 
     public function listCarrierDestinations(string $carrier, string $country): array
