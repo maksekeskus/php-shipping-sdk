@@ -207,6 +207,9 @@ class MakeCommerceClient implements HttpClientInterface
      */
     public function getRates(array $data): object
     {
+        if (isset($data['weight'])) {
+            $data['weight'] = (int)round($data['weight']);
+        }
         return $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data)->body;
     }
 
