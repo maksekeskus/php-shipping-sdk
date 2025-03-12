@@ -221,7 +221,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws MCException
      * @throws GuzzleException
      */
-    public function getRates(array $data, string $locale = 'en'): object
+    public function getRates(array $data): object
     {
         if (isset($data['weight'])) {
             $data['weight'] = (int)round($data['weight']);
