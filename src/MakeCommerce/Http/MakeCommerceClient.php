@@ -43,6 +43,11 @@ class MakeCommerceClient implements HttpClientInterface
     private string $appInfo;
 
     /**
+     * @var string $locale
+     */
+    private string $locale = 'en';
+
+    /**
      * @param string $environment
      * @param string $shopId
      * @param string $shopSecret
@@ -96,6 +101,16 @@ class MakeCommerceClient implements HttpClientInterface
         $this->managerUrl = $url;
     }
 
+
+    /**
+     * @param string $locale
+     * @return void
+     */
+    public function setLocale(string $locale)
+    {
+        $this->managerUrl = $locale;
+    }
+
     /**
      * @return array
      * @throws Exception
@@ -140,7 +155,8 @@ class MakeCommerceClient implements HttpClientInterface
             'Content-type' => 'application/json',
             'MakeCommerce-Shop' => $this->shopId,
             'MakeCommerce-Shop-Instance' => $this->instanceId,
-            'MakeCommerce-Shipping-AppInfo' => $this->appInfo
+            'MakeCommerce-Shipping-AppInfo' => $this->appInfo,
+            'MakeCommerce-User-Locale' => $this->locale
         ];
 
         if (!empty($additionalHeaders)) {
@@ -175,7 +191,7 @@ class MakeCommerceClient implements HttpClientInterface
      */
     //TODO How will this change with the flattening
 
-    public function getCouriers(): array
+    public function getCouriers()
     {
         return $this->makeApiRequest(self::GET, self::COURIER_RESOURCES['listCouriers'])->body;
     }
@@ -205,7 +221,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws MCException
      * @throws GuzzleException
      */
-    public function getRates(array $data): object
+    public function getRates(array $data, string $locale = 'en'): object
     {
         if (isset($data['weight'])) {
             $data['weight'] = (int)round($data['weight']);
