@@ -191,7 +191,7 @@ class MakeCommerceClient implements HttpClientInterface
      */
     //TODO How will this change with the flattening
 
-    public function getCouriers(): array
+    public function getCouriers()
     {
         return $this->makeApiRequest(self::GET, self::COURIER_RESOURCES['listCouriers'])->body;
     }
