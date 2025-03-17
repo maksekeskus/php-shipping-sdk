@@ -108,7 +108,7 @@ class MakeCommerceClient implements HttpClientInterface
      */
     public function setLocale(string $locale)
     {
-        $this->managerUrl = $locale;
+        $this->locale = $locale;
     }
 
     /**
