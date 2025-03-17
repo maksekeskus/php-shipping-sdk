@@ -223,10 +223,10 @@ class MakeCommerceClient implements HttpClientInterface
      */
     public function getRates(array $data, string $locale = 'en'): object
     {
-        $additionalHeaders = [
-            'MakeCommerce-User-Locale' => $locale
-        ];
-        return $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data, $additionalHeaders)->body;
+        if (isset($data['weight'])) {
+            $data['weight'] = (int)round($data['weight']);
+        }
+        return $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data)->body;
     }
 
     public function listCarrierDestinations(string $carrier, string $country): array
