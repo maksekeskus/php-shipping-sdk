@@ -372,7 +372,8 @@ class MakeCommerceClient implements HttpClientInterface
 
         $queryString = http_build_query(
             [
-                "jwt" => $jwt
+                "jwt" => $jwt,
+                "locale" => $this->locale
             ]
         );
 
