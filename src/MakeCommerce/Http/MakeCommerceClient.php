@@ -373,7 +373,8 @@ class MakeCommerceClient implements HttpClientInterface
         $queryString = http_build_query(
             [
                 "jwt" => $jwt,
-                "locale" => $this->locale
+                "locale" => $this->locale,
+                "platform" => json_decode(base64_decode($this->appInfo), true)['platform'] ?? ''
             ]
         );
 
