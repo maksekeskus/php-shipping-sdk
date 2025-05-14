@@ -419,13 +419,14 @@ class MakeCommerceClient implements HttpClientInterface
         array $credentials
     ): bool {
         $headers = [
-            'MakeCommerce-Carrier-Credentials' => base64_encode(json_encode($credentials))
+            'MakeCommerce-Carrier-Credentials' => base64_encode(json_encode($credentials)),
+            'MakeCommerce-Carrier' => $carrier
         ];
 
-        $endpoint = str_replace('{carrier}', $carrier, self::CARRIER_RESOURCES['authenticate']);
+        $endpoint = self::CARRIER_RESOURCES['authenticate'];
 
         $response = $this->makeApiRequest(self::GET, $endpoint, [], $headers);
 
-        return $response->code === 200;
+        return $response->code === 200 && $response->body == 'Valid';
     }
 }
