@@ -427,6 +427,6 @@ class MakeCommerceClient implements HttpClientInterface
 
         $response = $this->makeApiRequest(self::GET, $endpoint, [], $headers);
 
-        return $response->code === 200;
+        return $response->code === 200 && $response->body == 'Valid';
     }
 }
