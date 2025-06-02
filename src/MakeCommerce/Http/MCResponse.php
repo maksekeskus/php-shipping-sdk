@@ -23,6 +23,11 @@ class MCResponse
     public $body;
 
     /**
+     * @var array
+     */
+    public $headers;
+
+    /**
      * Reading row body first, cause after first read stream get cleaned
      *
      * @param ResponseInterface $response
@@ -34,6 +39,7 @@ class MCResponse
             throw new MCException($response->getReasonPhrase(), $response->getStatusCode());
         }
 
+        $this->headers = $response->getHeaders();
         $this->code = $response->getStatusCode();
         $this->rawBody = $response->getBody()->getContents();
         $this->body = json_decode($this->rawBody);
