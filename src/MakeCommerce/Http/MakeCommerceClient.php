@@ -221,12 +221,21 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws MCException
      * @throws GuzzleException
      */
-    public function getRates(array $data): object
+    public function getRates(array $data, array &$location = []): object
     {
         if (isset($data['weight'])) {
             $data['weight'] = (int)round($data['weight']);
         }
-        return $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data)->body;
+
+        $response = $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data);
+
+        $encodedLoc = $response->headers['MakeCommerce-Rates-Location'][0] ?? null;
+
+        if ($encodedLoc && ($decoded = base64_decode($encodedLoc, true))) {
+            $location = $decoded;
+        }
+
+        return $response->body;
     }
 
     public function listCarrierDestinations(string $carrier, string $country): array
