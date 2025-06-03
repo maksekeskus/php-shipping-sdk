@@ -5,6 +5,7 @@ namespace MakeCommerceShipping\SDK\Http;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\InvalidArgumentException;
 use MakeCommerceShipping\SDK\Environment;
 use MakeCommerceShipping\SDK\Exception\MCException;
 
@@ -15,12 +16,17 @@ class MakeCommerceClient implements HttpClientInterface
     /**
      * @var string
      */
-    private string $apiUrl;
+    private string $shippingUrl;
 
     /**
      * @var string
      */
     private string $managerUrl;
+
+    /**
+     * @var string
+     */
+    private string $apiUrl;
 
     /**
      * @var string Shop ID
@@ -63,16 +69,19 @@ class MakeCommerceClient implements HttpClientInterface
     ) {
         switch ($environment) {
             case Environment::DEV:
-                $this->setApiUrl(self::DEV_BASE_URI);
+                $this->setShippingUrl(self::DEV_SHIPPING_URI);
                 $this->setManagerUrl(self::DEV_MANAGER_URI);
+                $this->setApiUrl(self::DEV_API_URI);
                 break;
             case Environment::TEST:
-                $this->setApiUrl(self::TEST_BASE_URI);
+                $this->setShippingUrl(self::TEST_SHIPPING_URI);
                 $this->setManagerUrl(self::TEST_MANAGER_URI);
+                $this->setApiUrl(self::TEST_API_URI);
                 break;
             case Environment::LIVE:
-                $this->setApiUrl(self::LIVE_BASE_URI);
+                $this->setShippingUrl(self::LIVE_SHIPPING_URI);
                 $this->setManagerUrl(self::LIVE_MANAGER_URI);
+                $this->setApiUrl(self::LIVE_API_URI);
                 break;
         }
 
@@ -87,9 +96,9 @@ class MakeCommerceClient implements HttpClientInterface
      * @param string $url
      * @return void
      */
-    public function setApiUrl(string $url)
+    public function setShippingUrl(string $url)
     {
-        $this->apiUrl = $url;
+        $this->shippingUrl = $url;
     }
 
     /**
@@ -101,6 +110,14 @@ class MakeCommerceClient implements HttpClientInterface
         $this->managerUrl = $url;
     }
 
+    /**
+     * @param string $url
+     * @return void
+     */
+    public function setApiUrl(string $url)
+    {
+        $this->apiUrl = $url;
+    }
 
     /**
      * @param string $locale
@@ -133,7 +150,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @param string $endpoint
      * @param array $body
      * @param array $additionalHeaders
-     * @param bool $managerRequest
+     * @param string $requestType
      * @return MCResponse
      * @throws GuzzleException
      * @throws MCException
@@ -143,12 +160,23 @@ class MakeCommerceClient implements HttpClientInterface
         string $endpoint,
         array $body = [],
         array $additionalHeaders = [],
-        bool $managerRequest = false
+        string $requestType = self::REQUEST_TYPE_SHIPPING
     ): MCResponse {
-        $uri = $this->apiUrl . $endpoint;
-        if ($managerRequest) {
-            $uri = $this->managerUrl . $endpoint;
+        if (!in_array($requestType, [self::REQUEST_TYPE_MANAGER, self::REQUEST_TYPE_SHIPPING, self::REQUEST_TYPE_API])) {
+            throw new InvalidArgumentException('Unknown request type: ' . $requestType);
         }
+        switch ($requestType) {
+            case self::REQUEST_TYPE_API:
+                $uri = $this->apiUrl;
+                break;
+            case self::REQUEST_TYPE_SHIPPING:
+                $uri = $this->shippingUrl;
+                break;
+            case self::REQUEST_TYPE_MANAGER:
+                $uri = $this->managerUrl;
+                break;
+        }
+        $uri .= $endpoint;
 
         $headers = [
             'Accept' => 'application/json',
@@ -437,5 +465,24 @@ class MakeCommerceClient implements HttpClientInterface
         $response = $this->makeApiRequest(self::GET, $endpoint, [], $headers);
 
         return $response->code === 200 && $response->body == 'Valid';
+    }
+
+    /**
+     * @param string $subscription
+     * @return bool
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function changeSubscriptionPlan(string $subscription): bool
+    {
+        $subscription = strtoupper($subscription);
+        if (!in_array($subscription, self::SUBSCRIPTION_TYPES)) {
+            throw new InvalidArgumentException('Unknown subscription type: ' . $subscription);
+        }
+        $endpoint = self::CONFIGURATION_RESOURCES['subscription'];
+        $body = ['subscription' => $subscription];
+        $response = $this->makeApiRequest(self::POST, $endpoint, $body, [], self::REQUEST_TYPE_API);
+
+        return $response->code === 200 && $response->rawBody == 'Success';
     }
 }
