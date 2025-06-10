@@ -476,9 +476,6 @@ class MakeCommerceClient implements HttpClientInterface
     public function changeSubscriptionPlan(string $subscription): bool
     {
         $subscription = strtoupper($subscription);
-        if (!in_array($subscription, self::SUBSCRIPTION_TYPES)) {
-            throw new InvalidArgumentException('Unknown subscription type: ' . $subscription);
-        }
         $endpoint = self::CONFIGURATION_RESOURCES['subscription'];
         $body = ['subscription' => $subscription];
         $response = $this->makeApiRequest(self::POST, $endpoint, $body, [], self::REQUEST_TYPE_API);

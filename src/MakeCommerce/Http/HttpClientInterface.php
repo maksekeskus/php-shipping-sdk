@@ -19,10 +19,6 @@ interface HttpClientInterface
     public const REQUEST_TYPE_MANAGER = 'manager';
     public const REQUEST_TYPE_SHIPPING = 'shipping';
     public const REQUEST_TYPE_API = 'api';
-    public const SUBSCRIPTION_TYPES = [
-        'PRO',
-        'BASIC'
-    ];
 
     public const PICKUPPOINT_RESOURCES = [
         'listPickupPoints' => '/pickuppoint',
