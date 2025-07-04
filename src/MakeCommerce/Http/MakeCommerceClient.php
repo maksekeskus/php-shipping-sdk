@@ -380,6 +380,7 @@ class MakeCommerceClient implements HttpClientInterface
      * @param string $carrier
      * @param string $shipmentId
      * @param string $type
+     * @param string|null $format
      * @return string
      * @throws GuzzleException
      * @throws MCException
