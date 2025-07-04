@@ -387,7 +387,8 @@ class MakeCommerceClient implements HttpClientInterface
     public function getLabel(
         string $carrier,
         string $shipmentId,
-        string $type = self::TYPE_PICKUPPOINT
+        string $type = self::TYPE_PICKUPPOINT,
+        ?string $format = null
     ): string {
         //TODO Headers for carrier and type?
         $this->validateShipmentType($type);
@@ -395,6 +396,10 @@ class MakeCommerceClient implements HttpClientInterface
         $endPoint = self::SHIPMENT_RESOURCES['label'];
 
         $endPoint = str_replace('{id}', $shipmentId, $endPoint);
+
+        if (!empty($format)) {
+            $endPoint .= '?format=' . $format;
+        }
 
         return $this->makeApiRequest(self::GET, $endPoint)->rawBody;
     }
