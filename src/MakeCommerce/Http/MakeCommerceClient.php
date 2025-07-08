@@ -399,7 +399,7 @@ class MakeCommerceClient implements HttpClientInterface
         $endPoint = str_replace('{id}', $shipmentId, $endPoint);
 
         if (!empty($format)) {
-            $endPoint .= '?format=' . $format;
+            $endPoint .= '?labelFormat=' . $format;
         }
 
         return $this->makeApiRequest(self::GET, $endPoint)->rawBody;
