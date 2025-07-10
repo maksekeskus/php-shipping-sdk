@@ -49,7 +49,8 @@ interface HttpClientInterface
     ];
 
     public const CONFIGURATION_RESOURCES = [
-        'subscription' => '/v1/subscription/activate'
+        'subscription' => '/v1/subscription/activate',
+        'deactivateSubscription' => '/v1/subscription/deactivate'
     ];
 
     public const TYPE_PICKUPPOINT = 'pickuppoint';
