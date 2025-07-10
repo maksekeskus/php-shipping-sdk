@@ -482,4 +482,18 @@ class MakeCommerceClient implements HttpClientInterface
 
         return $response->code === 200 && $response->rawBody == 'Success';
     }
+
+
+    /**
+     * @return bool
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function deactivateSubscriptionPlan(): bool
+    {
+        $endpoint = self::CONFIGURATION_RESOURCES['deactivateSubscription'];
+        $response = $this->makeApiRequest(self::POST, $endpoint, [], [], self::REQUEST_TYPE_API);
+
+        return $response->code === 200 && $response->rawBody == 'Success';
+    }
 }
