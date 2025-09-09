@@ -162,7 +162,11 @@ class MakeCommerceClient implements HttpClientInterface
         array $additionalHeaders = [],
         string $requestType = self::REQUEST_TYPE_SHIPPING
     ): MCResponse {
-        if (!in_array($requestType, [self::REQUEST_TYPE_MANAGER, self::REQUEST_TYPE_SHIPPING, self::REQUEST_TYPE_API])) {
+        if (!in_array($requestType, [
+            self::REQUEST_TYPE_MANAGER,
+            self::REQUEST_TYPE_SHIPPING,
+            self::REQUEST_TYPE_API
+        ])) {
             throw new InvalidArgumentException('Unknown request type: ' . $requestType);
         }
         switch ($requestType) {
@@ -259,7 +263,12 @@ class MakeCommerceClient implements HttpClientInterface
 
         $cacheKey = base64_encode(sprintf("%s:%s:%s", $this->shopId, $this->instanceId, $bodyHash));
 
-        $response = $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data, ['MakeCommerce-CacheKey' => $cacheKey]);
+        $response = $this->makeApiRequest(
+            self::POST,
+            self::RATE_RESOURCES['rates'],
+            $data,
+            ['MakeCommerce-CacheKey' => $cacheKey]
+        );
         $encodedLoc = $response->headers['MakeCommerce-Rates-Location'][0] ?? null;
 
         if ($encodedLoc && ($decoded = base64_decode($encodedLoc, true))) {
