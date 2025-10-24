@@ -6,23 +6,25 @@ use MakeCommerceShipping\SDK\Environment;
 use MakeCommerceShipping\SDK\Http\MakeCommerceClient;
 
 $metaData = [
-    "module" => "WooCommerce",
-    "module_version" => "3.2",
-    "platform" => "Wordpress",
-    "platform_version" => "5.1"
+    "module" => "MakeCommerce",
+    "module_version" => "4.0.5",
+    "platform" => "Woocommerce",
+    "platform_version" => "10.2.2"
 ];
 
 $mcs = new MakeCommerceClient(
-    Environment::DEV,
-    '213d0d1d-ff95-46ef-adcb-db466abc462c',
-    'QWEhT30Lx73t2yi8zWKqC0kvlUIIJAkwHU0fIrEsi1Ofc8XlzjgEcIO8VHrss2gs',
-    'super-special-local-dev-shop-instance',
+    Environment::TEST,
+    'YOUR_SHOP_ID',
+    'YOUR_SECRET_ID',
+    'sdk-sample',
     $metaData
 );
 
 echo "<pre>";
-
-
+// Needed to complete setup
+$token = $mcs->connectShop($_SERVER['HTTP_USER_AGENT'], $_SERVER['HTTP_HOST']);
+$url = $mcs->getIframeUrl($token->body->jwt);
+echo '<iframe id="mcIframe" src="' . $url . '" width="100%" height="720px"></iframe>';
 
 //rates
 echo 'Rates: ' . print_r($mcs->getRates([
@@ -30,14 +32,6 @@ echo 'Rates: ' . print_r($mcs->getRates([
     'destination' => 'EE'
 ]), true);
 
-
-//pickuppoint carriers
-echo '<br>
-PickupPoint carriers: ' . print_r($mcs->getPickuppoints(), true);
-
-//courier carriers
-echo '<br>
-Courier carriers: ' . print_r($mcs->getCouriers(), true);
 
 //machine list
 $machines = $mcs->listCarrierDestinations('unisend', 'EE');
@@ -49,7 +43,10 @@ $shipment = $mcs->createShipment(
     'unisend',
     [
         [
-            'orderId' => '1',
+            'order' => [
+                'id' => '1',
+                'reference' => 'Example-Order-Reference'
+            ],
             'destination' => [
                 'id' => '9002',
                 'country' => 'EE'
@@ -67,14 +64,7 @@ echo '<br>
 Shipment pickuppoint: ' . print_r($shipment, true);
 
 echo '<br>
-Label: <a target="_blank" href="/label.php?shipmentId='.$shipment->trackingLink.'">'.$shipment->trackingLink.'</a>
+Label: <a target="_blank" href="/label.php?shipmentId='.$shipment->trackingId.'">'.$shipment->trackingId.'</a>
 ';
-
-try {
-    $mcs->connectShop();
-    $mcs->visualizeConfigPage();
-} catch (Exception $e) {
-    echo $e->getMessage();
-}
 
 echo "</pre>";

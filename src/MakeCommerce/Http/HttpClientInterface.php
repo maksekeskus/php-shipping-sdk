@@ -21,12 +21,7 @@ interface HttpClientInterface
     public const REQUEST_TYPE_API = 'api';
 
     public const PICKUPPOINT_RESOURCES = [
-        'listPickupPoints' => '/pickuppoint',
         'listCarrierDestinations' => '/pickuppoint/{country}'
-    ];
-
-    public const COURIER_RESOURCES = [
-        'listCouriers' => '/courier'
     ];
 
     public const SHIPMENT_RESOURCES = [

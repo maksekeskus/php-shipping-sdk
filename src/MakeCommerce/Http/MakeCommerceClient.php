@@ -134,17 +134,6 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws GuzzleException|MCException
      */
     //TODO How will this change with the flattening
-    public function getPickuppoints(): array
-    {
-        return $this->makeApiRequest(self::GET, self::PICKUPPOINT_RESOURCES['listPickupPoints'])->body;
-    }
-
-    /**
-     * @return array
-     * @throws Exception
-     * @throws GuzzleException|MCException
-     */
-    //TODO How will this change with the flattening
     /**
      * @param string $method
      * @param string $endpoint
@@ -162,7 +151,12 @@ class MakeCommerceClient implements HttpClientInterface
         array $additionalHeaders = [],
         string $requestType = self::REQUEST_TYPE_SHIPPING
     ): MCResponse {
-        if (!in_array($requestType, [self::REQUEST_TYPE_MANAGER, self::REQUEST_TYPE_SHIPPING, self::REQUEST_TYPE_API])) {
+        if (
+            !in_array($requestType, [
+            self::REQUEST_TYPE_MANAGER,
+            self::REQUEST_TYPE_SHIPPING,
+            self::REQUEST_TYPE_API])
+        ) {
             throw new InvalidArgumentException('Unknown request type: ' . $requestType);
         }
         switch ($requestType) {
@@ -210,18 +204,6 @@ class MakeCommerceClient implements HttpClientInterface
         }
 
         return new MCResponse($response);
-    }
-
-    /**
-     * @return array|mixed|object
-     * @throws GuzzleException
-     * @throws MCException
-     */
-    //TODO How will this change with the flattening
-
-    public function getCouriers()
-    {
-        return $this->makeApiRequest(self::GET, self::COURIER_RESOURCES['listCouriers'])->body;
     }
 
     /**
