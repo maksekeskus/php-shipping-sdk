@@ -151,7 +151,12 @@ class MakeCommerceClient implements HttpClientInterface
         array $additionalHeaders = [],
         string $requestType = self::REQUEST_TYPE_SHIPPING
     ): MCResponse {
-        if (!in_array($requestType, [self::REQUEST_TYPE_MANAGER, self::REQUEST_TYPE_SHIPPING, self::REQUEST_TYPE_API])) {
+        if (
+            !in_array($requestType, [
+            self::REQUEST_TYPE_MANAGER,
+            self::REQUEST_TYPE_SHIPPING,
+            self::REQUEST_TYPE_API])
+        ) {
             throw new InvalidArgumentException('Unknown request type: ' . $requestType);
         }
         switch ($requestType) {
