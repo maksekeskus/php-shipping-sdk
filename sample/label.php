@@ -16,7 +16,7 @@ $mcs = new MakeCommerceClient(
     Environment::TEST,
     'YOUR_SHOP_ID',
     'YOUR_SECRET_ID',
-    'super-special-local-dev-shop-instance',
+    'sdk-sample',
     $metaData
 );
 
