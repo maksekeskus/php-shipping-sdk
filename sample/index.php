@@ -21,8 +21,19 @@ $mcs = new MakeCommerceClient(
 );
 
 echo "<pre>";
+
+// RemoteAddr is the parent page hosting the iframe (protocol + domain required).
+// Must use HTTPS for production domains (e.g., https://my-example-domain.com).
+// HTTP is ONLY permitted for localhost (e.g., http://localhost:8080).
+$remoteAddress = $_SERVER['HTTP_HOST'];
+$orderUrl = $remoteAddress . 'order/{id}/view';
+
 // Needed to complete setup
-$token = $mcs->connectShop($_SERVER['HTTP_USER_AGENT'], $_SERVER['HTTP_HOST']);
+$token = $mcs->connectShop(
+    $_SERVER['HTTP_USER_AGENT'],
+    $remoteAddress,
+    $orderUrl
+);
 $url = $mcs->getIframeUrl($token->body->jwt);
 echo '<iframe id="mcIframe" src="' . $url . '" width="100%" height="720px"></iframe>';
 
@@ -53,7 +64,7 @@ $shipment = $mcs->createShipment(
             ],
             'recipient' => [
                 'name' => 'John Smith',
-                'phone' => '+37256237323',
+                'phone' => '+37256123123',
                 'email' => 'john.smith@maksekeskus.ee'
             ]
         ]
