@@ -408,12 +408,17 @@ class MakeCommerceClient implements HttpClientInterface
      * @throws GuzzleException
      * @throws MCException
      */
-    public function connectShop(string $userAgent, string $remoteAddr, string $orderUrl = ''): MCResponse
-    {
+    public function connectShop(
+        string $userAgent,
+        string $remoteAddr,
+        string $baseUrl = '',
+        string $orderUrl = ''
+    ): MCResponse {
         $body = [
             'shopId' => $this->shopId,
             'secretKey' => $this->secretKey,
             'instanceId' => $this->instanceId,
+            'baseUrl' => $baseUrl,
             'orderUrl' => $orderUrl,
             'HTTP_USER_AGENT' => $userAgent,
             'REMOTE_ADDR' => $remoteAddr
