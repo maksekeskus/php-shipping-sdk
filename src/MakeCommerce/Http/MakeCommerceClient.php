@@ -411,14 +411,14 @@ class MakeCommerceClient implements HttpClientInterface
     public function connectShop(
         string $userAgent,
         string $remoteAddr,
-        string $baseUrl = '',
+        string $webhookUrl = '',
         string $orderUrl = ''
     ): MCResponse {
         $body = [
             'shopId' => $this->shopId,
             'secretKey' => $this->secretKey,
             'instanceId' => $this->instanceId,
-            'baseUrl' => $baseUrl,
+            'webhookUrl' => $webhookUrl,
             'orderUrl' => $orderUrl,
             'HTTP_USER_AGENT' => $userAgent,
             'REMOTE_ADDR' => $remoteAddr
