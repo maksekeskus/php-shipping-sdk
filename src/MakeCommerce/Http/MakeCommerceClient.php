@@ -381,6 +381,34 @@ class MakeCommerceClient implements HttpClientInterface
         return $this->makeApiRequest(self::GET, $endPoint)->rawBody;
     }
 
+    /**
+     * @param string $carrier
+     * @param string $shipmentId
+     * @param string $type
+     * @return MCResponse
+     * @throws GuzzleException
+     * @throws MCException
+     */
+    public function getLabelFromManager(
+        string $carrier,
+        string $shipmentId,
+        string $type = self::TYPE_PICKUPPOINT
+    ): MCResponse {
+        $this->validateShipmentType($type);
+
+        $endPoint = self::MANAGER_RESOURCES['label'];
+
+        $endPoint = str_replace('{id}', $shipmentId, $endPoint);
+
+        return $this->makeApiRequest(
+            self::GET,
+            $endPoint,
+            [],
+            [],
+            self::REQUEST_TYPE_MANAGER
+        );
+    }
+
 
     /**
      * @param string $jwt

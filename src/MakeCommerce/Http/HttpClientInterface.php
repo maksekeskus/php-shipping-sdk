@@ -40,7 +40,8 @@ interface HttpClientInterface
 
     public const MANAGER_RESOURCES = [
         'iframe' => '/public/ui/?',
-        'connect' => '/connect'
+        'connect' => '/connect',
+        'label' => '/public/ui/shipments/label/{id}'
     ];
 
     public const CONFIGURATION_RESOURCES = [
