@@ -173,12 +173,12 @@ class MakeCommerceClient implements HttpClientInterface
         $uri .= $endpoint;
 
         $headers = [
-            'Accept' => 'application/json',
-            'Content-type' => 'application/json',
-            'MakeCommerce-Shop' => $this->shopId,
-            'MakeCommerce-Shop-Instance' => $this->instanceId,
-            'MakeCommerce-Shipping-AppInfo' => $this->appInfo,
-            'MakeCommerce-User-Locale' => $this->locale
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+            'makecommerce-shop' => $this->shopId,
+            'makecommerce-shop-instance' => $this->instanceId,
+            'makecommerce-shipping-appinfo' => $this->appInfo,
+            'makecommerce-user-locale' => $this->locale
         ];
 
         if (!empty($additionalHeaders)) {
@@ -239,7 +239,7 @@ class MakeCommerceClient implements HttpClientInterface
 
         $response = $this->makeApiRequest(self::POST, self::RATE_RESOURCES['rates'], $data);
 
-        $encodedLoc = $response->headers['MakeCommerce-Rates-Location'][0] ?? null;
+        $encodedLoc = $response->headers['makecommerce-rates-location'][0] ?? null;
 
         if ($encodedLoc && ($decoded = base64_decode($encodedLoc, true))) {
             $location = $decoded;
@@ -257,7 +257,7 @@ class MakeCommerceClient implements HttpClientInterface
         );
 
 
-        return $this->makeApiRequest(self::GET, $endPoint, [], ['MakeCommerce-Carrier' => $carrier])->body;
+        return $this->makeApiRequest(self::GET, $endPoint, [], ['makecommerce-carrier' => $carrier])->body;
     }
 
     /**
@@ -280,8 +280,8 @@ class MakeCommerceClient implements HttpClientInterface
             self::SHIPMENT_RESOURCES['shipments'],
             $shipment,
             [
-                'MakeCommerce-Carrier' => $carrier,
-                'MakeCommerce-Method' => $type
+                'makecommerce-carrier' => $carrier,
+                'makecommerce-method' => $type
             ]
         )->body;
     }
@@ -352,8 +352,8 @@ class MakeCommerceClient implements HttpClientInterface
             $endpoint,
             $shipment,
             [
-                'MakeCommerce-Carrier' => $carrier,
-                'MakeCommerce-Method' => $type
+                'makecommerce-carrier' => $carrier,
+                'makecommerce-method' => $type
             ]
         )->body;
     }
@@ -443,8 +443,8 @@ class MakeCommerceClient implements HttpClientInterface
         array $credentials
     ): bool {
         $headers = [
-            'MakeCommerce-Carrier-Credentials' => base64_encode(json_encode($credentials)),
-            'MakeCommerce-Carrier' => $carrier
+            'makecommerce-carrier-credentials' => base64_encode(json_encode($credentials)),
+            'makecommerce-carrier' => $carrier
         ];
 
         $endpoint = self::CARRIER_RESOURCES['authenticate'];
