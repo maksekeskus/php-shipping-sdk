@@ -66,7 +66,7 @@ $mcs = new MakeCommerceClient(
     Environment::TEST,    // Environment::TEST or Environment::LIVE
     'YOUR_SHOP_ID',       // From merchant portal
     'YOUR_SECRET_KEY',    // From merchant portal
-    'your-instance-id',   // Unique string identifying this integration instance
+    'your-persistent-uuid',// Generated once per installation; stored and reused on every request
     $appInfo
 );
 ```
@@ -78,7 +78,7 @@ $mcs = new MakeCommerceClient(
 | `$environment` | `string` | Yes | `Environment::TEST` or `Environment::LIVE` |
 | `$shopId` | `string` | Yes | Shop identifier from merchant portal |
 | `$shopSecret` | `string` | Yes | Secret key from merchant portal |
-| `$instanceId` | `string` | Yes | Unique identifier for this integration instance (e.g. `'woocommerce-plugin'`) |
+| `$instanceId` | `string` | Yes | Unique identifier for this specific shop installation. Must be a random UUID or unique string generated **once** per installation and stored persistently. Every request from the same shop installation must use the **same** value — a new installation (or a different e-commerce platform) must use a different value. Never regenerate it on each request. |
 | `$appInfo` | `array` | Yes | Platform metadata — see keys below |
 
 ### `$appInfo` Keys
@@ -89,6 +89,17 @@ $mcs = new MakeCommerceClient(
 | `module_version` | `string` | Version of your module/plugin |
 | `platform` | `string` | E-commerce platform name (e.g. `'WooCommerce'`) |
 | `platform_version` | `string` | Platform version |
+
+### `$instanceId` rules
+
+> **Generate once, store, never change.**
+> `$instanceId` must be a random UUID (or any sufficiently unique string) that you generate **once** when the plugin/module is first installed and then persist in your configuration storage. Every subsequent request from that same shop installation must send the exact same value.
+>
+> - **Same shop, same platform** → always the same `$instanceId`.
+> - **New installation** (fresh install on a new server, staging clone, etc.) → generate a new `$instanceId`.
+> - **Different e-commerce platform or plugin** on the same shop → generate a new `$instanceId`.
+>
+> If the value changes between requests the SDK will treat them as different integration instances.
 
 ### Optional: Locale
 
