@@ -43,6 +43,18 @@ Obtain your `shopId` and `secretKey` from the merchant portal:
 
 > **Important:** Credentials are environment-specific. TEST credentials will not work against the LIVE API and vice versa.
 
+### Public Test Credentials
+
+Use these shared credentials against `Environment::TEST` to try the SDK without registering:
+
+| Key | Value |
+|-----|-------|
+| `shopId` | `3425d8b7-0225-4367-8c6f-16b1aba8d766` |
+| `secretKey` | `J5S4lcVjC1QfJec8IQPhHSKeAiEf10bPV7KrHPx9AmIl9nCoEtNtJo63SF0YKpFQ` |
+| Publishable key | `79p15UvwBLlZfqmoMY8D8LAjq4CwI8Tn` |
+
+> These are intentionally public. Replace them with your own credentials before going to production.
+
 ---
 
 ## Client Initialization

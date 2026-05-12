@@ -6,6 +6,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MakeCommerce PHP Shipping SDK v2.0 - A PHP library for integrating with MakeCommerce shipping services. Supports PHP 7.4+ and uses Guzzle for HTTP communication.
 
+## Public Test Credentials
+
+Use these against `Environment::TEST` when writing or testing sample code:
+
+| Key | Value |
+|-----|-------|
+| `shopId` | `3425d8b7-0225-4367-8c6f-16b1aba8d766` |
+| `secretKey` | `J5S4lcVjC1QfJec8IQPhHSKeAiEf10bPV7KrHPx9AmIl9nCoEtNtJo63SF0YKpFQ` |
+| Publishable key | `79p15UvwBLlZfqmoMY8D8LAjq4CwI8Tn` |
+
+These are intentionally public. Never use them in production code examples — always note they should be replaced with merchant-specific credentials.
+
 ## Development Commands
 
 **Linting and Analysis:**
