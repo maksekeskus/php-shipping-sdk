@@ -97,7 +97,6 @@ $mcs = new MakeCommerceClient(
 >
 > - **Same shop, same platform** → always the same `$instanceId`.
 > - **New installation** (fresh install on a new server, staging clone, etc.) → generate a new `$instanceId`.
-> - **Different e-commerce platform or plugin** on the same shop → generate a new `$instanceId`.
 >
 > If the value changes between requests the SDK will treat them as different integration instances.
 
