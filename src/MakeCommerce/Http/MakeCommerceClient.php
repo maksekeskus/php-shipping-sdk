@@ -261,10 +261,11 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
-     * @param string $carrier
-     * @param array $shipment
-     * @param string $type
-     * @return array|mixed
+     * @param string $carrier  Carrier slug, e.g. 'omniva', 'dpd', 'unisend'
+     * @param array  $shipment Array of shipment objects. Each element: order{id,reference},
+     *                         destination{id,country}, recipient{name,phone,email}
+     * @param string $type     Use MakeCommerceClient::TYPE_PICKUPPOINT or TYPE_COURIER
+     * @return array|mixed  Decoded body. Key field: trackingId — pass to getLabel(), getShipment(), updateShipment()
      * @throws GuzzleException
      * @throws MCException
      */
@@ -313,26 +314,24 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
-     * @param string $shipmentId
-     *
+     * @param string $trackingId Short tracking code from createShipment() (e.g. "204138EE568")
      * @return array|mixed|object
      * @throws GuzzleException
      * @throws MCException
      */
     public function getShipment(
-        string $shipmentId
+        string $trackingId
     ) {
-        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['shipment']);
+        $endpoint = str_replace('{id}', $trackingId, self::SHIPMENT_RESOURCES['shipment']);
 
         return $this->makeApiRequest(self::GET, $endpoint)->body;
     }
 
     /**
-     * @param string $carrier
-     * @param array $shipment
-     * @param string $type
-     * @param string $shipmentId
-     *
+     * @param string $carrier    Carrier slug, e.g. 'omniva', 'dpd', 'unisend'
+     * @param array  $shipment   Same structure as createShipment() $shipment parameter
+     * @param string $type       Use MakeCommerceClient::TYPE_PICKUPPOINT or TYPE_COURIER
+     * @param string $trackingId Short tracking code from createShipment() (e.g. "204138EE568")
      * @return array|mixed|object
      * @throws GuzzleException
      * @throws MCException
@@ -341,11 +340,11 @@ class MakeCommerceClient implements HttpClientInterface
         string $carrier,
         array $shipment,
         string $type,
-        string $shipmentId
+        string $trackingId
     ) {
         $this->validateShipmentType($type);
 
-        $endpoint = str_replace('{id}', $shipmentId, self::SHIPMENT_RESOURCES['shipment']);
+        $endpoint = str_replace('{id}', $trackingId, self::SHIPMENT_RESOURCES['shipment']);
 
         return $this->makeApiRequest(
             self::PUT,
@@ -360,7 +359,7 @@ class MakeCommerceClient implements HttpClientInterface
 
     /**
      * @param string $carrier
-     * @param string $shipmentId
+     * @param string $trackingId Short tracking code from createShipment() (e.g. "204138EE568"), not the UUID
      * @param string $type
      * @return string
      * @throws GuzzleException
@@ -368,15 +367,14 @@ class MakeCommerceClient implements HttpClientInterface
      */
     public function getLabel(
         string $carrier,
-        string $shipmentId,
+        string $trackingId,
         string $type = self::TYPE_PICKUPPOINT
     ): string {
-        //TODO Headers for carrier and type?
         $this->validateShipmentType($type);
 
         $endPoint = self::SHIPMENT_RESOURCES['label'];
 
-        $endPoint = str_replace('{id}', $shipmentId, $endPoint);
+        $endPoint = str_replace('{id}', $trackingId, $endPoint);
 
         return $this->makeApiRequest(self::GET, $endPoint)->rawBody;
     }
@@ -401,10 +399,16 @@ class MakeCommerceClient implements HttpClientInterface
     }
 
     /**
-     * @param string $userAgent
-     * @param string $remoteAddr
-     * @param string $orderUrl
-     * @return MCResponse
+     * Registers the shop with the platform and returns a short-lived JWT for getIframeUrl().
+     * NOTE: This is the only method that returns MCResponse directly — access the JWT at $response->body->jwt.
+     * All other methods return the decoded response body directly.
+     *
+     * @param string $userAgent  Value of $_SERVER['HTTP_USER_AGENT']
+     * @param string $remoteAddr Protocol + domain hosting the iframe (e.g. 'https://myshop.com').
+     *                           Must be HTTPS in production; HTTP only allowed for localhost.
+     * @param string $orderUrl   Optional URL template for order detail pages, e.g. 'https://myshop.com/order/{id}/view'
+     * @param string $webhookUrl Optional webhook URL for shipment status updates
+     * @return MCResponse  Access JWT at $response->body->jwt and pass it to getIframeUrl()
      * @throws GuzzleException
      * @throws MCException
      */
@@ -423,7 +427,6 @@ class MakeCommerceClient implements HttpClientInterface
             'HTTP_USER_AGENT' => $userAgent,
             'REMOTE_ADDR' => $remoteAddr
         ];
-
 
         $endpoint = self::MANAGER_RESOURCES['connect'];
 
