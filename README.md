@@ -1,6 +1,6 @@
 # MakeCommerce PHP Shipping SDK
 
-**Package:** `maksekeskus/php-shipping-sdk` | **Version:** 1.5.5 | **PHP:** >= 7.4 | **License:** MIT
+**Package:** `maksekeskus/php-shipping-sdk` | **Version:** 1.5.6 | **PHP:** >= 7.4 | **License:** MIT
 
 A PHP client library for integrating with MakeCommerce shipping services. Supports shipment creation, rate calculation, pickup point lookups, label retrieval, carrier credential validation, and the embedded shipping manager UI.
 
