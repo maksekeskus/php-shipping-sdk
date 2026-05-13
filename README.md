@@ -277,7 +277,7 @@ $rates = $mcs->getRates(
 );
 ```
 
-**Request body:**
+**Request body:** (`weight` in grams)
 
 ```json
 {
@@ -293,19 +293,19 @@ $rates = $mcs->getRates(
   {
     "carrier": "omniva",
     "method": "pickuppoint",
-    "price": 3.49,
+    "price": 349,
     "currency": "EUR"
   },
   {
     "carrier": "dpd",
     "method": "courier",
-    "price": 5.99,
+    "price": 599,
     "currency": "EUR"
   }
 ]
 ```
 
-**Returns:** `object` — decoded response body.
+**Returns:** `object` — decoded response body. `price` is in **cents** (e.g. `349` = €3.49).
 
 ---
 
@@ -758,7 +758,7 @@ try {
 
     // --- NORMAL SDK USAGE (only after setup is complete) ---
 
-    $rates = $mcs->getRates(['weight' => 1500, 'destination' => 'EE']);
+    $rates = $mcs->getRates(['weight' => 1500, 'destination' => 'EE']); // weight in grams; price in response is in cents
 
     $pickupPoints = $mcs->listCarrierDestinations('omniva', 'EE');
 
