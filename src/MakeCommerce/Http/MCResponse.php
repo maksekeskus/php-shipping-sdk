@@ -49,7 +49,7 @@ class MCResponse
 
         // Only decode when the API says it is JSON, so binary payloads such as the
         // label PDF are never run through json_decode().
-        if (stripos($response->getHeaderLine('Content-Type'), 'json') !== false) {
+        if (stripos($response->getHeaderLine('content-type'), 'json') !== false) {
             $decoded = json_decode((string) $this->rawBody);
 
             if (json_last_error() === JSON_ERROR_NONE) {

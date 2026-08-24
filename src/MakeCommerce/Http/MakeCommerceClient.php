@@ -115,8 +115,8 @@ class MakeCommerceClient implements HttpClientInterface
         array $additionalHeaders = []
     ): MCResponse {
         $headers = [
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
             'makecommerce-shop-instance' => $this->instanceId,
             'makecommerce-user-locale' => $this->locale
         ];

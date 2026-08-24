@@ -204,9 +204,9 @@ Every request is authenticated with HTTP Basic Auth (`shopId:secretKey`) and inc
 
 | Header | Value |
 |--------|-------|
-| `Authorization` | `Basic base64(shopId:secretKey)` — handled by the SDK via Guzzle |
-| `Accept` | `application/json` |
-| `Content-Type` | `application/json` |
+| `Authorization` | `Basic base64(shopId:secretKey)` — set by Guzzle from the credentials |
+| `accept` | `application/json` |
+| `content-type` | `application/json` |
 | `makecommerce-shop-instance` | Your instance ID — required by the API |
 | `makecommerce-shipping-appinfo` | `base64(json_encode($appInfo))`. Omitted when no `$appInfo` was supplied. |
 | `makecommerce-user-locale` | Locale string (default: `en`) |
