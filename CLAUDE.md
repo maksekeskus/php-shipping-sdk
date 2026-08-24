@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 MakeCommerce PHP Shipping SDK v2.0 - A PHP library for integrating with MakeCommerce shipping services. Supports PHP 7.4+ and uses Guzzle for HTTP communication.
 
+**The SDK's public surface is exactly the endpoints documented in the public [Shipping API reference](https://developer.makecommerce.net/shipping-api)**
+
 ## Public Test Credentials
 
 Use these against `Environment::TEST` when writing or testing sample code:
@@ -39,29 +41,38 @@ composer start                # Starts PHP dev server at localhost:8080 serving 
 **Main Client** (`src/MakeCommerce/Http/MakeCommerceClient.php`):
 - Single entry point for all SDK operations
 - Handles authentication via HTTP Basic Auth (shopId + secretKey)
-- Manages three distinct base URLs per environment (shipping, manager, api)
+- Every API request goes to a single base URL, the shipping host. The manager URL is only
+  used by `getIframeUrl()` to build a string; the SDK never calls it.
 - All public methods correspond to specific API endpoints
 
-**Request Types:**
-The SDK routes requests to different base URLs via `REQUEST_TYPE_*` constants:
-- `REQUEST_TYPE_SHIPPING` - Shipment and parcel machine endpoints
-- `REQUEST_TYPE_MANAGER` - Shop connection and iframe URL generation
-- `REQUEST_TYPE_API` - Subscription management
-
 **Environment Configuration** (`src/MakeCommerce/Environment.php`):
-Three environments with separate API endpoints: `DEV`, `TEST`, `LIVE`
+Two environments, each with a shipping and a manager URL: `TEST` and `LIVE` — the only servers
+the API reference documents. An unknown environment string throws `MCException` from the
+constructor. Do not add a DEV tier back.
 
 **Response Handling** (`src/MakeCommerce/Http/MCResponse.php`):
-- Wraps PSR-7 responses
-- Automatically throws `MCException` for non-200/201 status codes
-- Provides both `rawBody` (string) and `body` (json_decoded object/array)
+- Wraps PSR-7 responses; a plain value object that never throws
+- Decodes `body` only when the response `Content-Type` is JSON, so label PDFs stay untouched
+- Provides `code`, `rawBody` (string), `body` (decoded or `null`), `headers`, and `message`
+
+**Error Handling** (`src/MakeCommerce/Exception/MCException.php`):
+- The Guzzle client sets `http_errors => false`, so error responses reach the SDK rather than
+  being wrapped by Guzzle. **Do not remove that option** — without it Guzzle throws before
+  `MCResponse` is built and the API's error message is lost.
+- `makeApiRequest()` accepts any 2xx and maps everything else onto `MCException`, carrying the
+  API's `message` and the full response via `getResponse()`
+- `GuzzleException` now only signals network-level failure
+
+**Webhooks:** `MakeCommerceClient::validateWebhook()` verifies the MAC on a shipment status
+notification. It lives on the client because the client already holds the secret key. It makes
+no HTTP request, and it must always use `hash_equals` — never `==` on the hex string.
 
 ### Key Architectural Patterns
 
-1. **Client Initialization**: Requires environment, shopId, secretKey, instanceId, and appInfo (metadata about the platform/module)
-2. **Headers**: Every request includes custom `MakeCommerce-*` headers for shop identification, instance ID, app info, and locale
-3. **Shipment Types**: All shipment operations require specifying either `TYPE_PICKUPPOINT` or `TYPE_COURIER`
-4. **Carrier Headers**: Carrier-specific operations use `MakeCommerce-Carrier` header instead of URL path parameters
+1. **Client Initialization**: Requires environment, shopId, secretKey and instanceId. `appInfo` (metadata about the platform/module) is optional.
+2. **Headers**: Every request includes lowercase `makecommerce-*` headers for instance ID, app info and locale. Only `makecommerce-shop-instance` is required by the API; keep header names lowercase to match the reference.
+3. **Delivery Methods**: All shipment operations require either `TYPE_PICKUPPOINT` or `TYPE_COURIER`, validated locally before the request is sent
+4. **Carrier Headers**: Carrier-specific operations use the `makecommerce-carrier` header instead of URL path parameters, plus `makecommerce-method` for create and update
 
 ### Namespace Structure
 
@@ -80,7 +91,9 @@ Three environments with separate API endpoints: `DEV`, `TEST`, `LIVE`
 
 GitHub Actions workflow (`.github/workflows/tests.yml`) runs on PHP 7.4, 8.0, 8.1, 8.2:
 - PHP 8.1 matrix includes analysis jobs (phpcs + phpstan)
-- No unit tests currently configured (phpunit script exists but no test files)
+- No unit tests configured, and no `composer test` script: phpunit is not a dependency and no
+  test files exist. Do not add the script without also adding the dependency and a test.
+- PHPMD is not run in CI, so its findings are advisory
 
 ## Sample Code
 
@@ -92,13 +105,14 @@ Located in `sample/` directory:
 
 ## API Endpoint Groups
 
-All endpoints defined in `HttpClientInterface`:
+All endpoints defined in `HttpClientInterface`, which is deliberately a constant bag —
+merchants reference `MakeCommerceClient::TYPE_PICKUPPOINT` through it, so do not restructure it:
+- **SHOP_RESOURCES** - `/connect`. Despite being part of the iframe setup flow, this is served
+  by the **shipping** host, not the manager host — do not move it under `MANAGER_RESOURCES`.
+- **RATE_RESOURCES** - Shipping rate calculation
 - **PICKUPPOINT_RESOURCES** - Parcel machine/pickup point locations
 - **SHIPMENT_RESOURCES** - Shipment CRUD and label generation
-- **CARRIER_RESOURCES** - Carrier credential validation
-- **RATE_RESOURCES** - Shipping rate calculation
-- **MANAGER_RESOURCES** - Shop connection and iframe UI
-- **CONFIGURATION_RESOURCES** - Subscription plan management
+- **MANAGER_RESOURCES** - Iframe UI path only (never requested by the SDK)
 
 ## Required Setup Sequence
 
@@ -114,7 +128,15 @@ Only after step 3 are shipping features usable. When helping someone implement t
 
 **Merchant has not completed first-time setup**
 
-The most common failure. `getRates()`, `listCarrierDestinations()`, `createShipment()`, and `getLabel()` will return API errors until the merchant has opened the iframe and saved their sender address. Before debugging any of those methods, verify setup is complete.
+The most common failure. Before debugging any of these methods, verify setup is complete. Note
+the failures do not all look like errors:
+
+- `getRates()` returns `200 OK` with **empty** `pickuppoint` and `courier` arrays. There is no
+  exception to catch — empty rates almost always means setup is incomplete, not a bug.
+- `createShipment()` can succeed while the carrier never accepts the shipment. The shipment
+  then has `status: FAILED` and `carrierTrackingId: null`, and `getLabel()` fails with a 500
+  `"Failed to create a shipment with carrier"`.
+- `listCarrierDestinations()` works regardless, since pickup point lists are not shop-specific.
 
 **`connectShop()` returns `MCResponse`, not a decoded body**
 
@@ -125,7 +147,7 @@ The most common failure. `getRates()`, `listCarrierDestinations()`, `createShipm
 $iframeUrl = $mcs->getIframeUrl($mcs->connectShop(...)->jwt);
 
 // CORRECT
-$response = $mcs->connectShop(...);
+$response = $mcs->connectShop('https://myshop.com');
 $iframeUrl = $mcs->getIframeUrl($response->body->jwt);
 ```
 
