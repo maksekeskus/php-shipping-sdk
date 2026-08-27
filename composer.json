@@ -1,6 +1,6 @@
 {
   "name": "maksekeskus/php-shipping-sdk",
-  "version": "1.5.6",
+  "version": "2.0.0",
   "description": "MakeCommerce PHP shipping SDK",
   "keywords": [
     "rest",
@@ -17,7 +17,7 @@
     }
   ],
   "require": {
-    "php": ">=7.4",
+    "php": "^7.4 || ^8.0",
     "ext-json": "*",
     "guzzlehttp/guzzle": "^7.8"
   },
@@ -40,7 +40,6 @@
     }
   },
   "scripts": {
-    "start": "php -S localhost:8080 -t sample",
-    "test": "phpunit"
+    "start": "php -S localhost:8080 -t sample"
   }
 }

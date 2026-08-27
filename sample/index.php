@@ -22,18 +22,15 @@ $mcs = new MakeCommerceClient(
 
 echo "<pre>";
 
-// RemoteAddr is the parent page hosting the iframe (protocol + domain required).
-// Must use HTTPS for production domains (e.g., https://my-example-domain.com).
-// HTTP is ONLY permitted for localhost (e.g., http://localhost:8080).
-$remoteAddress = $_SERVER['HTTP_HOST'];
-$orderUrl = $remoteAddress . 'order/{id}/view';
+// RemoteAddr identifies the site allowed to embed the iframe. The platform resolves the
+// host from this value, so a bare $_SERVER['HTTP_HOST'] works too — a full URL is just
+// clearer, and is what the API reference shows.
+$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$remoteAddress = $scheme . '://' . $_SERVER['HTTP_HOST'];
+$orderUrl = $remoteAddress . '/order/{id}/view';
 
 // Needed to complete setup
-$token = $mcs->connectShop(
-    $_SERVER['HTTP_USER_AGENT'],
-    $remoteAddress,
-    $orderUrl
-);
+$token = $mcs->connectShop($remoteAddress, $orderUrl);
 $url = $mcs->getIframeUrl($token->body->jwt);
 echo '<iframe id="mcIframe" src="' . $url . '" width="100%" height="720px"></iframe>';
 
@@ -52,6 +49,7 @@ PickupPoints: ' . print_r($machines, true);
 //shipment
 $shipment = $mcs->createShipment(
     'unisend',
+    MakeCommerceClient::TYPE_PICKUPPOINT,
     [
         [
             'order' => [
@@ -68,8 +66,7 @@ $shipment = $mcs->createShipment(
                 'email' => 'john.smith@maksekeskus.ee'
             ]
         ]
-    ],
-    'pickuppoint'
+    ]
 );
 echo '<br>
 Shipment pickuppoint: ' . print_r($shipment, true);
