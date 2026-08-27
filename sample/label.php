@@ -14,12 +14,12 @@ $metaData = [
 
 $mcs = new MakeCommerceClient(
     Environment::TEST,
-    'YOUR_SHOP_ID',
-    'YOUR_SECRET_ID',
+    '3425d8b7-0225-4367-8c6f-16b1aba8d766',
+    'J5S4lcVjC1QfJec8IQPhHSKeAiEf10bPV7KrHPx9AmIl9nCoEtNtJo63SF0YKpFQ',
     'sdk-sample',
     $metaData
 );
 
 header('Content-Type: application/pdf');
 
-echo $mcs->getLabel('unisend', $_GET["shipmentId"]);
+echo $mcs->getLabel($_GET['shipmentId']);
